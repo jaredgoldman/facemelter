@@ -11,23 +11,32 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const controller_1 = require("./controller");
+const processRegistration_1 = require("./processRegistration");
 const token = process.env.DISCORD_TOKEN;
 const client = new discord_js_1.Client({
     intents: [discord_js_1.Intents.FLAGS.GUILDS, discord_js_1.Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS],
 });
-client.once("ready", () => {
-    console.log("Melter ready!");
+client.once('ready', () => {
+    console.log('Melter ready!');
 });
-client.on("interactionCreate", (interaction) => __awaiter(void 0, void 0, void 0, function* () {
+client.on('interactionCreate', (interaction) => __awaiter(void 0, void 0, void 0, function* () {
     if (!interaction.isCommand())
         return;
-    const { commandName } = interaction;
-    if (commandName === "start") {
+    const { commandName, options, user } = interaction;
+    if (commandName === 'start') {
         (0, controller_1.playRound)();
+        interaction.reply({
+            content: 'Game started',
+            ephemeral: true,
+        });
     }
-    interaction.reply({
-        content: "Game started",
-        ephemeral: true,
-    });
+    if (commandName === 'register') {
+        const { _hoistedOptions: [address, assetId], } = options;
+        (0, processRegistration_1.processRegistration)(user, address, assetId);
+        interaction.reply({
+            content: 'User registered',
+            ephemeral: true,
+        });
+    }
 }));
 client.login(token);

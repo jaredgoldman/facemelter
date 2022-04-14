@@ -1,26 +1,26 @@
-const path = require("path")
-const Dotenv = require("dotenv-webpack")
+const path = require('path')
+const Dotenv = require('dotenv-webpack')
 
 module.exports = {
-  mode: "development",
-  entry: "./src/server.ts",
+  mode: 'development',
+  entry: './src/server=.ts',
   output: {
-    filename: "bundle.js",
-    path: path.resolve(__dirname, "dist"),
-    publicPath: "dist",
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+    publicPath: 'dist',
   },
-  devtool: "inline-source-map",
+  devtool: 'inline-source-map',
   module: {
     rules: [
       {
         test: /\.ts$/,
-        use: "ts-loader",
+        use: 'ts-loader',
         exclude: /node-modules/,
       },
     ],
   },
   resolve: {
-    extensions: [".ts", ".js"],
+    extensions: ['.ts', '.js'],
   },
   plugins: [new Dotenv()],
 }

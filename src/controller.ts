@@ -1,5 +1,5 @@
 import { Player, Game, Match, Round, PlayerArray, ObserveTime } from "./types"
-import { playGame } from "./game"
+import playGame from "./game"
 // import { players, hp } from "./mockdata"
 import { findGame, addGame, updateGame, clearGame } from "./database"
 import { WithId } from "mongodb"

@@ -1,30 +1,40 @@
 // Require the necessary discord.js classes
-import { Client, Intents } from "discord.js"
-import { playRound } from "./controller"
+import { Client, Intents, Interaction, InteractionCollector } from 'discord.js'
+import { playRound } from './controller'
+import { processRegistration } from './processRegistration'
+import { RegisterInteraction } from './types'
 const token: string = process.env.DISCORD_TOKEN
 
-// Create a new client instance
-const client = new Client({
+const client: Client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS],
 })
 
-// When the client is ready, run this code (only once)
-client.once("ready", () => {
-  console.log("Melter ready!")
+client.once('ready', () => {
+  console.log('Melter ready!')
 })
 
-client.on("interactionCreate", async (interaction) => {
+client.on('interactionCreate', async (interaction: any) => {
   if (!interaction.isCommand()) return
 
-  const { commandName } = interaction
-  if (commandName === "start") {
+  const { commandName, options, user } = interaction
+  if (commandName === 'start') {
     playRound()
+    interaction.reply({
+      content: 'Game started',
+      ephemeral: true,
+    })
   }
 
-  interaction.reply({
-    content: "Game started",
-    ephemeral: true,
-  })
+  if (commandName === 'register') {
+    const {
+      _hoistedOptions: [address, assetId],
+    } = options
+    processRegistration(user, address, assetId)
+    interaction.reply({
+      content: 'User registered',
+      ephemeral: true,
+    })
+  }
 })
-// Login to Discord with your client's token
+
 client.login(token)

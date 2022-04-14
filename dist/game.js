@@ -9,24 +9,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.playGame = void 0;
 const utils_1 = require("./utils");
 let state;
 let winningPlayer;
-const playGame = (match, observeTime) => __awaiter(void 0, void 0, void 0, function* () {
-    winningPlayer = undefined;
-    const { player1, player2, hp } = match;
-    state = createGameState(player1, player2, hp);
-    while (!winningPlayer) {
-        if (observeTime) {
-            yield (0, utils_1.wait)(observeTime);
+function playGame(match, observeTime) {
+    return __awaiter(this, void 0, void 0, function* () {
+        winningPlayer = undefined;
+        const { player1, player2, hp } = match;
+        state = createGameState(player1, player2, hp);
+        while (!winningPlayer) {
+            if (observeTime) {
+                yield (0, utils_1.wait)(observeTime);
+            }
+            playRound();
         }
-        playRound();
-    }
-    console.log("WINNER", winningPlayer);
-    return winningPlayer;
-});
-exports.playGame = playGame;
+        console.log("WINNER", winningPlayer);
+        return winningPlayer;
+    });
+}
+exports.default = playGame;
 const createGameState = (player1, player2, hp) => {
     const state = {
         players: [],

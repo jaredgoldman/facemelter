@@ -14,12 +14,6 @@ require('dotenv').config();
 const mockdata_1 = require("./mockdata");
 const mongodb_1 = require("mongodb");
 const uri = process.env.MONGO_URI;
-if (!uri) {
-    throw new Error('no uri');
-}
-else {
-    console.log('uri:', uri);
-}
 const client = new mongodb_1.MongoClient(uri);
 const addPlayers = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -61,6 +55,11 @@ const addGame = () => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.addGame = addGame;
+const registerUser = () => __awaiter(void 0, void 0, void 0, function* () {
+    yield client.connect();
+    const database = client.db('facemelter');
+    const collection = database.collection('users');
+});
 const updateGame = (data, gameId) => __awaiter(void 0, void 0, void 0, function* () {
     yield client.connect();
     const database = client.db('facemelter');

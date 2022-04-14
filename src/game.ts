@@ -5,7 +5,10 @@ let state: GameState
 
 let winningPlayer: Player | undefined
 
-const playGame = async (match: Match, observeTime: number | null) => {
+export default async function playGame(
+  match: Match,
+  observeTime: number | null
+) {
   winningPlayer = undefined
   const { player1, player2, hp } = match
   state = createGameState(player1, player2, hp)
@@ -98,5 +101,3 @@ const tieBreaker = (): number => {
   if (num > 5) return 1
   return 0
 }
-
-export { playGame }
