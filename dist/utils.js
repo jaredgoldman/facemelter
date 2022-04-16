@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getNextRoundType = exports.asyncForEach = exports.wait = void 0;
+exports.choosePlayers = exports.getNextRoundData = exports.asyncForEach = exports.wait = void 0;
 const wait = (duration) => __awaiter(void 0, void 0, void 0, function* () {
     yield new Promise((res) => {
         setTimeout(res, duration);
@@ -27,16 +27,45 @@ const asyncForEach = (array, callback) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.asyncForEach = asyncForEach;
-const getNextRoundType = (length) => {
+const getNextRoundData = (length) => {
     if (length === 16)
-        return 'roundOne';
+        return { nextRoundType: 'roundOne', observeTime: 0 };
     if (length === 8)
-        return 'roundTwo';
+        return { nextRoundType: 'roundTwo', observeTime: 0 };
     if (length === 4)
-        return 'semiFinals';
+        return { nextRoundType: 'semiFinals', observeTime: 0 };
     if (length === 2)
-        return 'finals';
+        return { nextRoundType: 'finals', observeTime: 0 };
     else
-        return 'gameover';
+        return { nextRoundType: 'gameover', observeTime: 0 };
 };
-exports.getNextRoundType = getNextRoundType;
+exports.getNextRoundData = getNextRoundData;
+const splitPlayers = (players) => {
+    const newPlayerArray = [];
+    players.forEach((player) => {
+        const { _id, discordId, username, address } = player;
+        const splitEntries = player.assets.map((asset) => ({
+            _id,
+            discordId,
+            username,
+            address,
+            asset,
+        }));
+        newPlayerArray.push(...splitEntries);
+    });
+    return newPlayerArray;
+};
+const choosePlayers = (players, length) => {
+    const splitPlayerArray = splitPlayers(players);
+    const playerArray = [];
+    const randomIndexes = [];
+    while (playerArray.length <= length) {
+        const randomIndex = Math.floor(Math.random() * splitPlayerArray.length);
+        if (!randomIndexes.includes(randomIndex)) {
+            playerArray.push(splitPlayerArray[randomIndex]);
+            randomIndexes.push(randomIndex);
+        }
+    }
+    return playerArray;
+};
+exports.choosePlayers = choosePlayers;

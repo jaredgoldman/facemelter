@@ -1,47 +1,45 @@
-import { Player, Game, Match, Round, PlayerArray, ObserveTime } from "./types"
-import playGame from "./game"
-// import { players, hp } from "./mockdata"
-import { findGame, addGame, updateGame, clearGame } from "./database"
-import { WithId } from "mongodb"
-import { asyncForEach, getNextRoundType } from "./utils"
+import {
+  Player,
+  Game,
+  Match,
+  PlayerArray,
+  // NextRoundData,
+} from './types'
+import playGame from './game'
+import {
+  findGame,
+  addGame,
+  updateGame,
+  clearGame,
+  setupTestGame,
+} from './database'
+import { WithId } from 'mongodb'
+import { asyncForEach, getNextRoundData } from './utils'
 
 const playRound = async () => {
   // attempt to retreive game
-  let game: WithId<Game | any> = await findGame()
-  let gameId
-  console.log("Playing game", game.round)
-  let observeTime = game.round === "finals" ? 1000 : null
-  // if there is not already a game object, create one and add players
-  if (!game) {
-    console.log("adding game")
-    await addGame()
-    game = await findGame()
-    gameId = game._id
-    console.log("new game added")
-  } else {
-    gameId = game._id
-    console.log("game exists")
-  }
-
-  const { players } = game
+  const game = await determineGame()
+  const { players, _id: gameId } = game
   // convert players into pairs
   const matches = groupMatches(players)
   // play game with each set of players
-  const winningPlayers = await playMatches(matches, observeTime)
-  const nextRoundType: Round = getNextRoundType(winningPlayers.length)
+  const winningPlayers = await playMatches(matches, game.observeTime)
+  const { nextRoundType, observeTime } = getNextRoundData(winningPlayers.length)
 
-  if (nextRoundType === "gameover") {
+  if (nextRoundType === 'gameover') {
     // clear game entry and display winner of tournament
-    clearGame(gameId)
-    // console.log("TOURNAMENT OVER ", winningPlayers[0].username + " WINS!")
+    clearGame()
+    console.log('TOURNAMENT OVER ', winningPlayers[0].username + ' WINS!')
   } else {
     const nextGame: Game = {
       round: nextRoundType,
       players: winningPlayers,
+      observeTime,
     }
     // post back to db with winning players
     await updateGame(nextGame, gameId)
   }
+  console.log('finished round: ', game.round)
 }
 
 const groupMatches = (players: PlayerArray) => {
@@ -58,7 +56,7 @@ const groupMatches = (players: PlayerArray) => {
 
 const playMatches = async (
   matches: Match[],
-  observeTime: ObserveTime
+  observeTime: number
 ): Promise<PlayerArray> => {
   const winningPlayers: any[] = []
   await asyncForEach(matches, async (match: Match) => {
@@ -66,6 +64,20 @@ const playMatches = async (
     winningPlayers.push(winningPlayer)
   })
   return winningPlayers
+}
+
+const determineGame = async () => {
+  let game: WithId<Game | any> = await findGame()
+  // if there is not already a game object, create one and add players
+  if (!game) {
+    console.log('adding game')
+    await setupTestGame()
+    await addGame()
+    game = await findGame()
+  } else {
+    console.log('game exists')
+  }
+  return game
 }
 
 export { playRound }

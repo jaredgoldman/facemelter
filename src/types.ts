@@ -1,13 +1,14 @@
-import { Interaction } from 'discord.js'
+import { ObjectId } from 'mongodb'
+import { playRound } from './controller'
 export interface GameState {
   players: PlayerArray
   hp: number
 }
 
-export interface Player {
-  username: string
-  asset: string
-  hp: number
+export interface Game {
+  round: string
+  players: PlayerArray
+  observeTime: number
 }
 
 export interface Match {
@@ -16,21 +17,38 @@ export interface Match {
   hp: number
 }
 
-export type PlayerArray = Player[]
+// export type Round =
+//   | 'roundOne'
+//   | 'roundTwo'
+//   | 'semiFinals'
+//   | 'finals'
+//   | 'gameover'
 
-export interface Game {
-  round: Round
-  players: PlayerArray
+export interface NextRoundData {
+  nextRoundType: string
+  observeTime: number
+}
+// Type for player after entries are split and hp is added
+export interface Player {
+  _id?: ObjectId
+  address: string
+  discordId: string
+  username: string
+  assets: Asset
+  hp: number
 }
 
-export type Round =
-  | 'roundOne'
-  | 'roundTwo'
-  | 'semiFinals'
-  | 'finals'
-  | 'gameover'
+export interface PlayerEntry {
+  _id?: ObjectId
+  discordId: string
+  username: string
+  address: string
+  assets: Asset[]
+}
 
-export type ObserveTime = number | null
+export type PlayerArray = Player[] | []
+
+export type PlayerEntryArray = PlayerEntry[] | []
 
 export type AssetId = {
   name: string
@@ -44,16 +62,21 @@ export type WalletAddress = {
   value: string
 }
 
-type DiscordOptions = {
-  _hoistedOptions: (AssetId | WalletAddress)[]
-}
-
-export type Asset = {
+export type WalletAsset = {
   [key: string]: number | boolean
   amount: number
   'asset-id': number
   'is-frozen': boolean
 }
-export interface RegisterInteraction extends Interaction {
-  options: AssetId | WalletAddress
+
+export interface Asset {
+  assetUrl: string
+  assetName: string
+  assetId: number
+  unitName: string
+}
+
+export interface RegistrationResult {
+  status: string
+  asset: Asset | null
 }

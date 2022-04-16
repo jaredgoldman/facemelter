@@ -9,27 +9,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clearGame = exports.updateGame = exports.addGame = exports.findGame = exports.addPlayers = void 0;
-require('dotenv').config();
+exports.setupTestGame = exports.addPlayerAsset = exports.findPlayer = exports.addPlayer = exports.clearGame = exports.updateGame = exports.addGame = exports.findGame = exports.resetPlayers = exports.addPlayers = void 0;
 const mockdata_1 = require("./mockdata");
 const mongodb_1 = require("mongodb");
+const utils_1 = require("./utils");
 const uri = process.env.MONGO_URI;
 const client = new mongodb_1.MongoClient(uri);
+client.connect();
 const addPlayers = () => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        yield client.connect();
-        const database = client.db('facemelter');
-        const collection = database.collection('users');
-        yield collection.insertMany(mockdata_1.players.roundOne);
-    }
-    catch (error) {
-        console.log('error adding players');
-    }
+    const database = client.db('facemelter');
+    const collection = database.collection('users');
+    yield collection.insertMany(mockdata_1.players);
 });
 exports.addPlayers = addPlayers;
+const resetPlayers = () => __awaiter(void 0, void 0, void 0, function* () {
+    const database = client.db('facemelter');
+    const collection = database.collection('users');
+    yield collection.deleteMany({});
+});
+exports.resetPlayers = resetPlayers;
 const findGame = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield client.connect();
         const database = client.db('facemelter');
         const collection = database.collection('game');
         return yield collection.findOne();
@@ -39,13 +39,20 @@ const findGame = () => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.findGame = findGame;
+const getPlayers = () => __awaiter(void 0, void 0, void 0, function* () {
+    const database = client.db('facemelter');
+    const collection = database.collection('users');
+    return (yield collection.find().toArray());
+});
 const addGame = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const players = yield getPlayers();
+        const randomizedPlayers = (0, utils_1.choosePlayers)(players, 15);
         const game = {
             round: 'roundOne',
-            players: mockdata_1.players.roundOne,
+            players: randomizedPlayers,
+            observeTime: 0,
         };
-        yield client.connect();
         const database = client.db('facemelter');
         const collection = database.collection('game');
         return yield collection.insertOne(game);
@@ -55,22 +62,44 @@ const addGame = () => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.addGame = addGame;
-const registerUser = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield client.connect();
+const addPlayer = (playerData) => __awaiter(void 0, void 0, void 0, function* () {
     const database = client.db('facemelter');
     const collection = database.collection('users');
+    return yield collection.insertOne(playerData);
 });
+exports.addPlayer = addPlayer;
+const addPlayerAsset = (discordId, asset) => __awaiter(void 0, void 0, void 0, function* () {
+    const database = client.db('facemelter');
+    const collection = database.collection('users');
+    const player = yield collection.findOne({ discordId });
+    const hasAsset = player === null || player === void 0 ? void 0 : player.assets.filter((playerAsset) => playerAsset.assetId === asset.assetId);
+    if (!hasAsset) {
+        return collection.findOneAndUpdate({ discordId }, { $set: { assets: [...player === null || player === void 0 ? void 0 : player.assets, asset] } });
+    }
+});
+exports.addPlayerAsset = addPlayerAsset;
+const findPlayer = (discordId) => __awaiter(void 0, void 0, void 0, function* () {
+    const database = client.db('facemelter');
+    const collection = database.collection('users');
+    return yield collection.findOne({ discordId });
+});
+exports.findPlayer = findPlayer;
 const updateGame = (data, gameId) => __awaiter(void 0, void 0, void 0, function* () {
-    yield client.connect();
     const database = client.db('facemelter');
     const collection = database.collection('game');
     return yield collection.findOneAndReplace({ _id: gameId }, data);
 });
 exports.updateGame = updateGame;
-const clearGame = (gameId) => __awaiter(void 0, void 0, void 0, function* () {
-    yield client.connect();
+const clearGame = () => __awaiter(void 0, void 0, void 0, function* () {
     const database = client.db('facemelter');
     const collection = database.collection('game');
-    return yield collection.deleteOne({ _id: gameId });
+    return yield collection.deleteMany({});
 });
 exports.clearGame = clearGame;
+const setupTestGame = () => __awaiter(void 0, void 0, void 0, function* () {
+    yield clearGame();
+    yield resetPlayers();
+    yield addPlayers();
+    console.log('game reset');
+});
+exports.setupTestGame = setupTestGame;

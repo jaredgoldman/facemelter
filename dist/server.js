@@ -32,9 +32,9 @@ client.on('interactionCreate', (interaction) => __awaiter(void 0, void 0, void 0
     }
     if (commandName === 'register') {
         const { _hoistedOptions: [address, assetId], } = options;
-        (0, processRegistration_1.processRegistration)(user, address, assetId);
+        const { status } = yield (0, processRegistration_1.processRegistration)(user, address, assetId);
         interaction.reply({
-            content: 'User registered',
+            content: status,
             ephemeral: true,
         });
     }

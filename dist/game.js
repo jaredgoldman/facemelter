@@ -16,27 +16,24 @@ function playGame(match, observeTime) {
     return __awaiter(this, void 0, void 0, function* () {
         winningPlayer = undefined;
         const { player1, player2, hp } = match;
-        state = createGameState(player1, player2, hp);
+        createGameState(player1, player2, hp);
         while (!winningPlayer) {
             if (observeTime) {
                 yield (0, utils_1.wait)(observeTime);
             }
             playRound();
         }
-        console.log("WINNER", winningPlayer);
         return winningPlayer;
     });
 }
 exports.default = playGame;
 const createGameState = (player1, player2, hp) => {
-    const state = {
-        players: [],
-        hp: hp,
-    };
     player1.hp = hp;
     player2.hp = hp;
-    state.players = [player1, player2];
-    return state;
+    state = {
+        players: [player1, player2],
+        hp,
+    };
 };
 const playRound = () => {
     const { players, hp } = state;
@@ -48,42 +45,33 @@ const playRound = () => {
     }
 };
 const playerTurn = (i, hp) => {
-    const { players } = state;
     const player = state.players[i];
     const roll = Math.floor((Math.random() * hp) / 10);
-    console.log(`${roll} damage done to ${players[i].username}`);
     if (player.hp && player.hp > 0) {
         player.hp -= roll;
     }
 };
 const determineWinner = () => {
-    const players = state.players;
-    const win = state.players[0].hp < 1 || state.players[1].hp < 1;
+    const [player1, player2] = state.players;
+    const win = player1.hp < 1 || player2.hp < 1;
     if (win) {
         const winningPlayers = state.players.filter((player) => {
             return player.hp && player.hp > 1;
         });
-        console.log("player1 hp", state.players[0]);
-        console.log("player2 hp", state.players[1]);
-        console.log("winning players", winningPlayers);
         if (winningPlayers.length === 1) {
-            console.log("1 winner");
             winningPlayer = winningPlayers[0];
             return;
         }
-        if (!winningPlayers.length && players[0].hp === players[1].hp) {
-            console.log("TIE");
-            winningPlayer = players[tieBreaker()];
+        if (!winningPlayers.length && player1.hp === player2.hp) {
+            winningPlayer = state.players[tieBreaker()];
             return;
         }
-        if (!winningPlayers.length && players[0].hp > players[1].hp) {
-            console.log("player 1 wins");
-            winningPlayer = players[0];
+        if (!winningPlayers.length && player1.hp > player2.hp) {
+            winningPlayer = player1;
             return;
         }
         else {
-            console.log("player 2 wins");
-            winningPlayer = players[1];
+            winningPlayer = player2;
             return;
         }
     }

@@ -2,7 +2,6 @@
 import { Client, Intents, Interaction, InteractionCollector } from 'discord.js'
 import { playRound } from './controller'
 import { processRegistration } from './processRegistration'
-import { RegisterInteraction } from './types'
 const token: string = process.env.DISCORD_TOKEN
 
 const client: Client = new Client({
@@ -29,9 +28,10 @@ client.on('interactionCreate', async (interaction: any) => {
     const {
       _hoistedOptions: [address, assetId],
     } = options
-    processRegistration(user, address, assetId)
+    const { status } = await processRegistration(user, address, assetId)
+
     interaction.reply({
-      content: 'User registered',
+      content: status,
       ephemeral: true,
     })
   }

@@ -17,35 +17,24 @@ const game_1 = __importDefault(require("./game"));
 const database_1 = require("./database");
 const utils_1 = require("./utils");
 const playRound = () => __awaiter(void 0, void 0, void 0, function* () {
-    let game = yield (0, database_1.findGame)();
-    let gameId;
-    console.log("Playing game", game.round);
-    let observeTime = game.round === "finals" ? 1000 : null;
-    if (!game) {
-        console.log("adding game");
-        yield (0, database_1.addGame)();
-        game = yield (0, database_1.findGame)();
-        gameId = game._id;
-        console.log("new game added");
-    }
-    else {
-        gameId = game._id;
-        console.log("game exists");
-    }
-    const { players } = game;
+    const game = yield determineGame();
+    const { players, _id: gameId } = game;
     const matches = groupMatches(players);
-    const winningPlayers = yield playMatches(matches, observeTime);
-    const nextRoundType = (0, utils_1.getNextRoundType)(winningPlayers.length);
-    if (nextRoundType === "gameover") {
-        (0, database_1.clearGame)(gameId);
+    const winningPlayers = yield playMatches(matches, game.observeTime);
+    const { nextRoundType, observeTime } = (0, utils_1.getNextRoundData)(winningPlayers.length);
+    if (nextRoundType === 'gameover') {
+        (0, database_1.clearGame)();
+        console.log('TOURNAMENT OVER ', winningPlayers[0].username + ' WINS!');
     }
     else {
         const nextGame = {
             round: nextRoundType,
             players: winningPlayers,
+            observeTime,
         };
         yield (0, database_1.updateGame)(nextGame, gameId);
     }
+    console.log('finished round: ', game.round);
 });
 exports.playRound = playRound;
 const groupMatches = (players) => {
@@ -65,4 +54,17 @@ const playMatches = (matches, observeTime) => __awaiter(void 0, void 0, void 0, 
         winningPlayers.push(winningPlayer);
     }));
     return winningPlayers;
+});
+const determineGame = () => __awaiter(void 0, void 0, void 0, function* () {
+    let game = yield (0, database_1.findGame)();
+    if (!game) {
+        console.log('adding game');
+        yield (0, database_1.setupTestGame)();
+        yield (0, database_1.addGame)();
+        game = yield (0, database_1.findGame)();
+    }
+    else {
+        console.log('game exists');
+    }
+    return game;
 });

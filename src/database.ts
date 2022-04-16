@@ -1,31 +1,26 @@
-require('dotenv').config()
-import { Game } from './types'
+import { Asset, Game, PlayerEntryArray, PlayerEntry } from './types'
 import { players } from './mockdata'
 import { MongoClient, Db, Collection, ObjectId } from 'mongodb'
+import { choosePlayers } from './utils'
 const uri: string = process.env.MONGO_URI
 
-// if (!uri) {
-//   throw new Error('no uri')
-// } else {
-//   console.log('uri:', uri)
-// }
-
 const client = new MongoClient(uri)
+client.connect()
 
 const addPlayers = async () => {
-  try {
-    await client.connect()
-    const database: Db = client.db('facemelter')
-    const collection: Collection = database.collection('users')
-    await collection.insertMany(players.roundOne)
-  } catch (error) {
-    console.log('error adding players')
-  }
+  const database: Db = client.db('facemelter')
+  const collection: Collection = database.collection('users')
+  await collection.insertMany(players)
+}
+
+const resetPlayers = async () => {
+  const database: Db = client.db('facemelter')
+  const collection: Collection = database.collection('users')
+  await collection.deleteMany({})
 }
 
 const findGame = async () => {
   try {
-    await client.connect()
     const database: Db = client.db('facemelter')
     const collection: Collection = database.collection('game')
     return await collection.findOne()
@@ -34,13 +29,22 @@ const findGame = async () => {
   }
 }
 
+const getPlayers = async () => {
+  const database: Db = client.db('facemelter')
+  const collection: Collection = database.collection('users')
+  return (await collection.find().toArray()) as PlayerEntryArray
+}
+
 const addGame = async () => {
   try {
-    const game = {
+    const players = await getPlayers()
+    const randomizedPlayers = choosePlayers(players, 15)
+    const game: Game = {
       round: 'roundOne',
-      players: players.roundOne,
+      players: randomizedPlayers,
+      observeTime: 0,
     }
-    await client.connect()
+
     const database: Db = client.db('facemelter')
     const collection: Collection = database.collection('game')
     return await collection.insertOne(game)
@@ -49,25 +53,61 @@ const addGame = async () => {
   }
 }
 
-const registerUser = async () => {
-  await client.connect()
+const addPlayer = async (playerData: PlayerEntry) => {
   const database: Db = client.db('facemelter')
   const collection: Collection = database.collection('users')
-  // return await collection.insertOne()
+  return await collection.insertOne(playerData)
+}
+
+const addPlayerAsset = async (discordId: string, asset: Asset) => {
+  const database: Db = client.db('facemelter')
+  const collection: Collection = database.collection('users')
+  const player = await collection.findOne({ discordId })
+  const hasAsset = player?.assets.filter(
+    (playerAsset: Asset) => playerAsset.assetId === asset.assetId
+  )
+  if (!hasAsset) {
+    return collection.findOneAndUpdate(
+      { discordId },
+      { $set: { assets: [...player?.assets, asset] } }
+    )
+  }
+}
+
+const findPlayer = async (discordId: string) => {
+  const database: Db = client.db('facemelter')
+  const collection: Collection = database.collection('users')
+  return await collection.findOne({ discordId })
 }
 
 const updateGame = async (data: Game, gameId: ObjectId) => {
-  await client.connect()
   const database: Db = client.db('facemelter')
   const collection: Collection = database.collection('game')
   return await collection.findOneAndReplace({ _id: gameId }, data)
 }
 
-const clearGame = async (gameId: ObjectId) => {
-  await client.connect()
+const clearGame = async () => {
   const database: Db = client.db('facemelter')
   const collection: Collection = database.collection('game')
-  return await collection.deleteOne({ _id: gameId })
+  return await collection.deleteMany({})
 }
 
-export { addPlayers, findGame, addGame, updateGame, clearGame }
+const setupTestGame = async () => {
+  await clearGame()
+  await resetPlayers()
+  await addPlayers()
+  console.log('game reset')
+}
+
+export {
+  addPlayers,
+  resetPlayers,
+  findGame,
+  addGame,
+  updateGame,
+  clearGame,
+  addPlayer,
+  findPlayer,
+  addPlayerAsset,
+  setupTestGame,
+}
