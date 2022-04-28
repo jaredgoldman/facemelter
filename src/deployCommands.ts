@@ -25,6 +25,9 @@ const commands = [
         .setDescription('enter your randycones asset ID')
         .setRequired(true)
     ),
+  new SlashCommandBuilder()
+    .setName('setup-test')
+    .setDescription('set up test users'),
 ].map((command) => command.toJSON())
 
 const rest = new REST({ version: '9' }).setToken(token)

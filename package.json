@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node -r dotenv/config dist/server.js",
-    "dev": "nodemon -r dotenv/config dist/server.js"
+    "dev": "nodemon -r dotenv/config dist/server.js",
+    "commands": "node -r dotenv/config dist/deployCommands.js"
   },
   "keywords": [],
   "author": "",

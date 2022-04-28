@@ -1,35 +1,33 @@
-import {
-  Player,
-  Game,
-  Match,
-  PlayerArray,
-  // NextRoundData,
-} from './types'
-import playGame from './game'
-import {
-  findGame,
-  addGame,
-  updateGame,
-  clearGame,
-  setupTestGame,
-} from './database'
+import { Player, Game, Match, PlayerArray } from './types'
+import { playGame, state } from './game'
+import { findGame, addGame, updateGame, clearGame } from './database'
 import { WithId } from 'mongodb'
 import { asyncForEach, getNextRoundData } from './utils'
+import {
+  createRoundEmbed,
+  createWinningEmbed,
+  createInitialEmbed,
+} from './embeds'
+import { InteractionReplyOptions, Interaction } from 'discord.js'
 
-const playRound = async () => {
+const playRound = async (interaction: any) => {
   // attempt to retreive game
   const game = await determineGame()
-  const { players, _id: gameId } = game
+  const { players, _id: gameId, round } = game
+  // create initial embed
+  const initialEmbed: InteractionReplyOptions = createInitialEmbed(round)
+  state.embed = await interaction.reply(initialEmbed)
   // convert players into pairs
   const matches = groupMatches(players)
   // play game with each set of players
-  const winningPlayers = await playMatches(matches, game.observeTime)
+  const winningPlayers = await playMatches(matches, game.observeTime, round)
   const { nextRoundType, observeTime } = getNextRoundData(winningPlayers.length)
 
   if (nextRoundType === 'gameover') {
     // clear game entry and display winner of tournament
     clearGame()
-    console.log('TOURNAMENT OVER ', winningPlayers[0].username + ' WINS!')
+    const winningEmbed = createWinningEmbed(winningPlayers[0])
+    return state.embed.edit(winningEmbed)
   } else {
     const nextGame: Game = {
       round: nextRoundType,
@@ -39,7 +37,10 @@ const playRound = async () => {
     // post back to db with winning players
     await updateGame(nextGame, gameId)
   }
-  console.log('finished round: ', game.round)
+  // render round results
+  const roundEmbed = createRoundEmbed(winningPlayers, round)
+  await state.embed.edit(roundEmbed)
+  return winningPlayers
 }
 
 const groupMatches = (players: PlayerArray) => {
@@ -56,13 +57,15 @@ const groupMatches = (players: PlayerArray) => {
 
 const playMatches = async (
   matches: Match[],
-  observeTime: number
+  observeTime: number,
+  round: string
 ): Promise<PlayerArray> => {
   const winningPlayers: any[] = []
   await asyncForEach(matches, async (match: Match) => {
-    const winningPlayer: Player = await playGame(match, observeTime)
+    const winningPlayer: Player = await playGame(match, observeTime, round)
     winningPlayers.push(winningPlayer)
   })
+  // update embed to show winning players of round
   return winningPlayers
 }
 
@@ -71,7 +74,6 @@ const determineGame = async () => {
   // if there is not already a game object, create one and add players
   if (!game) {
     console.log('adding game')
-    await setupTestGame()
     await addGame()
     game = await findGame()
   } else {

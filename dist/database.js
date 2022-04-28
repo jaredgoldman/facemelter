@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setupTestGame = exports.addPlayerAsset = exports.findPlayer = exports.addPlayer = exports.clearGame = exports.updateGame = exports.addGame = exports.findGame = exports.resetPlayers = exports.addPlayers = void 0;
+exports.addPlayerAsset = exports.findPlayer = exports.addPlayer = exports.clearGame = exports.updateGame = exports.addGame = exports.findGame = exports.resetPlayers = exports.addPlayers = void 0;
 const mockdata_1 = require("./mockdata");
 const mongodb_1 = require("mongodb");
 const utils_1 = require("./utils");
@@ -58,7 +58,7 @@ const addGame = () => __awaiter(void 0, void 0, void 0, function* () {
         return yield collection.insertOne(game);
     }
     catch (error) {
-        console.log('error adding game');
+        console.log('error adding game', error);
     }
 });
 exports.addGame = addGame;
@@ -73,15 +73,18 @@ const addPlayerAsset = (discordId, asset) => __awaiter(void 0, void 0, void 0, f
     const collection = database.collection('users');
     const player = yield collection.findOne({ discordId });
     const hasAsset = player === null || player === void 0 ? void 0 : player.assets.filter((playerAsset) => playerAsset.assetId === asset.assetId);
-    if (!hasAsset) {
+    if (!hasAsset.length) {
         return collection.findOneAndUpdate({ discordId }, { $set: { assets: [...player === null || player === void 0 ? void 0 : player.assets, asset] } });
+    }
+    else {
+        console.log('player already has asset');
     }
 });
 exports.addPlayerAsset = addPlayerAsset;
 const findPlayer = (discordId) => __awaiter(void 0, void 0, void 0, function* () {
     const database = client.db('facemelter');
     const collection = database.collection('users');
-    return yield collection.findOne({ discordId });
+    return (yield collection.findOne({ discordId }));
 });
 exports.findPlayer = findPlayer;
 const updateGame = (data, gameId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -96,10 +99,3 @@ const clearGame = () => __awaiter(void 0, void 0, void 0, function* () {
     return yield collection.deleteMany({});
 });
 exports.clearGame = clearGame;
-const setupTestGame = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield clearGame();
-    yield resetPlayers();
-    yield addPlayers();
-    console.log('game reset');
-});
-exports.setupTestGame = setupTestGame;

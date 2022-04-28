@@ -49,7 +49,7 @@ const addGame = async () => {
     const collection: Collection = database.collection('game')
     return await collection.insertOne(game)
   } catch (error) {
-    console.log('error adding game')
+    console.log('error adding game', error)
   }
 }
 
@@ -66,18 +66,20 @@ const addPlayerAsset = async (discordId: string, asset: Asset) => {
   const hasAsset = player?.assets.filter(
     (playerAsset: Asset) => playerAsset.assetId === asset.assetId
   )
-  if (!hasAsset) {
+  if (!hasAsset.length) {
     return collection.findOneAndUpdate(
       { discordId },
       { $set: { assets: [...player?.assets, asset] } }
     )
+  } else {
+    console.log('player already has asset')
   }
 }
 
 const findPlayer = async (discordId: string) => {
   const database: Db = client.db('facemelter')
   const collection: Collection = database.collection('users')
-  return await collection.findOne({ discordId })
+  return (await collection.findOne({ discordId })) as PlayerEntry
 }
 
 const updateGame = async (data: Game, gameId: ObjectId) => {
@@ -92,13 +94,6 @@ const clearGame = async () => {
   return await collection.deleteMany({})
 }
 
-const setupTestGame = async () => {
-  await clearGame()
-  await resetPlayers()
-  await addPlayers()
-  console.log('game reset')
-}
-
 export {
   addPlayers,
   resetPlayers,
@@ -109,5 +104,4 @@ export {
   addPlayer,
   findPlayer,
   addPlayerAsset,
-  setupTestGame,
 }

@@ -8,23 +8,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.playRound = void 0;
-const game_1 = __importDefault(require("./game"));
+const game_1 = require("./game");
 const database_1 = require("./database");
 const utils_1 = require("./utils");
-const playRound = () => __awaiter(void 0, void 0, void 0, function* () {
+const embeds_1 = require("./embeds");
+const playRound = (interaction) => __awaiter(void 0, void 0, void 0, function* () {
     const game = yield determineGame();
-    const { players, _id: gameId } = game;
+    const { players, _id: gameId, round } = game;
+    const initialEmbed = (0, embeds_1.createInitialEmbed)(round);
+    game_1.state.embed = yield interaction.reply(initialEmbed);
     const matches = groupMatches(players);
-    const winningPlayers = yield playMatches(matches, game.observeTime);
+    const winningPlayers = yield playMatches(matches, game.observeTime, round);
     const { nextRoundType, observeTime } = (0, utils_1.getNextRoundData)(winningPlayers.length);
     if (nextRoundType === 'gameover') {
         (0, database_1.clearGame)();
-        console.log('TOURNAMENT OVER ', winningPlayers[0].username + ' WINS!');
+        const winningEmbed = (0, embeds_1.createWinningEmbed)(winningPlayers[0]);
+        return game_1.state.embed.edit(winningEmbed);
     }
     else {
         const nextGame = {
@@ -34,7 +35,9 @@ const playRound = () => __awaiter(void 0, void 0, void 0, function* () {
         };
         yield (0, database_1.updateGame)(nextGame, gameId);
     }
-    console.log('finished round: ', game.round);
+    const roundEmbed = (0, embeds_1.createRoundEmbed)(winningPlayers, round);
+    yield game_1.state.embed.edit(roundEmbed);
+    return winningPlayers;
 });
 exports.playRound = playRound;
 const groupMatches = (players) => {
@@ -47,10 +50,10 @@ const groupMatches = (players) => {
     }
     return matches;
 };
-const playMatches = (matches, observeTime) => __awaiter(void 0, void 0, void 0, function* () {
+const playMatches = (matches, observeTime, round) => __awaiter(void 0, void 0, void 0, function* () {
     const winningPlayers = [];
     yield (0, utils_1.asyncForEach)(matches, (match) => __awaiter(void 0, void 0, void 0, function* () {
-        const winningPlayer = yield (0, game_1.default)(match, observeTime);
+        const winningPlayer = yield (0, game_1.playGame)(match, observeTime, round);
         winningPlayers.push(winningPlayer);
     }));
     return winningPlayers;
@@ -59,7 +62,6 @@ const determineGame = () => __awaiter(void 0, void 0, void 0, function* () {
     let game = yield (0, database_1.findGame)();
     if (!game) {
         console.log('adding game');
-        yield (0, database_1.setupTestGame)();
         yield (0, database_1.addGame)();
         game = yield (0, database_1.findGame)();
     }

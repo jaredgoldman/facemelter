@@ -1,8 +1,12 @@
 import { ObjectId } from 'mongodb'
-import { playRound } from './controller'
+import { Interaction, MessageManager } from 'discord.js'
+
 export interface GameState {
   players: PlayerArray
   hp: number
+  embed?: any
+  round: string
+  observeTime: number
 }
 
 export interface Game {
@@ -17,12 +21,10 @@ export interface Match {
   hp: number
 }
 
-// export type Round =
-//   | 'roundOne'
-//   | 'roundTwo'
-//   | 'semiFinals'
-//   | 'finals'
-//   | 'gameover'
+export interface User {
+  id: string
+  username: string
+}
 
 export interface NextRoundData {
   nextRoundType: string
@@ -34,7 +36,7 @@ export interface Player {
   address: string
   discordId: string
   username: string
-  assets: Asset
+  asset: Asset
   hp: number
 }
 
@@ -79,4 +81,16 @@ export interface Asset {
 export interface RegistrationResult {
   status: string
   asset: Asset | null
+}
+
+export interface RoundTypes {
+  [key: string]: string
+}
+
+export type Options = AssetId[] | WalletAddress[]
+
+export interface InteractionWithOptions extends Interaction {
+  options: {
+    _hoistedOptions: Options
+  }
 }

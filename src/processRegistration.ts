@@ -1,10 +1,11 @@
-import { User } from 'discord.js'
+// import { User } from 'discord.js'
 import {
   AssetId,
   WalletAddress,
   Asset,
   RegistrationResult,
   WalletAsset,
+  User,
 } from './types'
 import algosdk, { Indexer } from 'algosdk'
 import AlgodClient from 'algosdk/dist/types/src/client/v2/algod/algod'
@@ -40,6 +41,7 @@ const processRegistration = async (
     // If owned, find full player and asset data
     const player = await findPlayer(discordId)
     const asset = await findAsset(assetId, algoIndexer)
+
     const {
       name: assetName,
       url: assetUrl,
@@ -47,9 +49,10 @@ const processRegistration = async (
     } = asset?.assets[0].params
 
     // Check if it's a randy cone
-    if (unitName.splice(0, 5) !== 'RCONE') {
+    if (unitName.slice(0, 5) !== 'RCONE') {
       return {
-        status: 'asset is not a randy cone',
+        status:
+          'This asset is not a randy cone, please try again with a meltable NFT',
         asset: null,
       }
     }
@@ -62,9 +65,10 @@ const processRegistration = async (
     }
 
     if (player) {
+      const assetCount = player.assets.length + 1
       await addPlayerAsset(discordId, assetEntry)
       return {
-        status: 'New asset added to existing user',
+        status: `Added ${unitName} for melting - this asset number ${assetCount} out of 5`,
         asset: assetEntry,
       }
     } else {
@@ -75,13 +79,13 @@ const processRegistration = async (
         assets: [assetEntry],
       })
       return {
-        status: 'New user added with initial asset',
+        status: `Added ${unitName} for melting - you can add up to 4 more assets`,
         asset: assetEntry,
       }
     }
   } else {
     return {
-      status: 'User does not own asset',
+      status: `Looks like the wallet address entered doesn't hold this asset, please try again!`,
       asset: null,
     }
   }
@@ -91,7 +95,7 @@ const findAsset = async (assetId: AssetId, indexer: Indexer) => {
   try {
     return await indexer.searchForAssets().index(assetId.value).do()
   } catch (error) {
-    console.log('ERROR finding asset')
+    console.log('ERROR finding asset', error)
   }
 }
 

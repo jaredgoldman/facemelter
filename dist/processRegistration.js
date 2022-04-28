@@ -33,9 +33,9 @@ const processRegistration = (user, address, assetId) => __awaiter(void 0, void 0
         const player = yield (0, database_1.findPlayer)(discordId);
         const asset = yield findAsset(assetId, algoIndexer);
         const { name: assetName, url: assetUrl, 'unit-name': unitName, } = asset === null || asset === void 0 ? void 0 : asset.assets[0].params;
-        if (unitName.splice(0, 5) !== 'RCONE') {
+        if (unitName.slice(0, 5) !== 'RCONE') {
             return {
-                status: 'asset is not a randy cone',
+                status: 'This asset is not a randy cone, please try again with a meltable NFT',
                 asset: null,
             };
         }
@@ -46,9 +46,10 @@ const processRegistration = (user, address, assetId) => __awaiter(void 0, void 0
             unitName,
         };
         if (player) {
+            const assetCount = player.assets.length + 1;
             yield (0, database_1.addPlayerAsset)(discordId, assetEntry);
             return {
-                status: 'New asset added to existing user',
+                status: `Added ${unitName} for melting - this asset number ${assetCount} out of 5`,
                 asset: assetEntry,
             };
         }
@@ -60,14 +61,14 @@ const processRegistration = (user, address, assetId) => __awaiter(void 0, void 0
                 assets: [assetEntry],
             });
             return {
-                status: 'New user added with initial asset',
+                status: `Added ${unitName} for melting - you can add up to 4 more assets`,
                 asset: assetEntry,
             };
         }
     }
     else {
         return {
-            status: 'User does not own asset',
+            status: `Looks like the wallet address entered doesn't hold this asset, please try again!`,
             asset: null,
         };
     }
@@ -78,7 +79,7 @@ const findAsset = (assetId, indexer) => __awaiter(void 0, void 0, void 0, functi
         return yield indexer.searchForAssets().index(assetId.value).do();
     }
     catch (error) {
-        console.log('ERROR finding asset');
+        console.log('ERROR finding asset', error);
     }
 });
 const determineOwnership = function (algodclient, address, assetId) {

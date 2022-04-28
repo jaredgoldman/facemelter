@@ -1,42 +1,63 @@
+import { createMatchEmbed, createTurnEmbed } from './embeds'
 import { GameState, Player, Match, PlayerArray } from './types'
 import { wait } from './utils'
 
-let state: GameState
+let state: GameState = {
+  players: [],
+  hp: 0,
+  embed: null,
+  round: 'roundOne',
+  observeTime: 0,
+}
 
 let winningPlayer: Player | undefined
 
-export default async function playGame(match: Match, observeTime: number) {
+let observe: number | null
+
+const playGame = async (match: Match, observeTime: number, round: string) => {
+  observe = observeTime
   // reset winning player
   winningPlayer = undefined
   const { player1, player2, hp } = match
-  createGameState(player1, player2, hp)
+  createGameState(player1, player2, hp, round, observeTime)
   while (!winningPlayer) {
     if (observeTime) {
       await wait(observeTime)
     }
     playRound()
   }
-  // console.log('***** ROUND DETAILS *****')
-  // console.log('winning player: ', winningPlayer.username)
-  // console.log('player state:', state.players)
+  console.log('***** ROUND DETAILS *****')
+  console.log('winning player: ', winningPlayer['username'])
+  console.log('player state:', state.players)
+  // display winning player
+  if (observeTime) {
+    const matchEmbed = createMatchEmbed(winningPlayer, round)
+    await state.embed.edit(matchEmbed)
+    await wait(3000)
+  }
   return winningPlayer
 }
 
 const createGameState = (
   player1: Player,
   player2: Player,
-  hp: number
+  hp: number,
+  round: string,
+  observeTime: number
 ): void => {
   player1.hp = hp
   player2.hp = hp
 
   state = {
+    ...state,
     players: [player1, player2],
     hp,
+    round,
+    observeTime,
   }
 }
 
-const playRound = () => {
+const playRound = async () => {
   const { players, hp } = state
 
   if (Array.isArray(players)) {
@@ -44,6 +65,10 @@ const playRound = () => {
       playerTurn(i, hp)
     })
     determineWinner()
+    if (observe) {
+      const turnEmbed = createTurnEmbed(state)
+      await state.embed.edit(turnEmbed)
+    }
   }
 }
 
@@ -89,3 +114,5 @@ const tieBreaker = (): number => {
   if (num > 5) return 1
   return 0
 }
+
+export { playGame, state }

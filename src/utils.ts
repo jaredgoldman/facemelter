@@ -4,7 +4,6 @@ import {
   PlayerEntry,
   PlayerArray,
   Asset,
-  NextRoundData,
 } from './types'
 
 export const wait = async (duration: number) => {
@@ -26,8 +25,8 @@ export const asyncForEach = async (array: Array<any>, callback: Function) => {
 export const getNextRoundData = (length: number) => {
   if (length === 16) return { nextRoundType: 'roundOne', observeTime: 0 }
   if (length === 8) return { nextRoundType: 'roundTwo', observeTime: 0 }
-  if (length === 4) return { nextRoundType: 'semiFinals', observeTime: 0 }
-  if (length === 2) return { nextRoundType: 'finals', observeTime: 0 }
+  if (length === 4) return { nextRoundType: 'semiFinals', observeTime: 2000 }
+  if (length === 2) return { nextRoundType: 'finals', observeTime: 2000 }
   else return { nextRoundType: 'gameover', observeTime: 0 }
 }
 
@@ -45,6 +44,7 @@ const splitPlayers = (players: PlayerEntryArray): PlayerArray => {
     }))
     newPlayerArray.push(...splitEntries)
   })
+  console.log(newPlayerArray)
   return newPlayerArray
 }
 
