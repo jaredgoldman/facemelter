@@ -83,6 +83,11 @@ export interface RegistrationResult {
   asset: Asset | null
 }
 
+export interface VerificationResult {
+  assetOwned: boolean
+  walletOwned: boolean
+}
+
 export interface RoundTypes {
   [key: string]: string
 }

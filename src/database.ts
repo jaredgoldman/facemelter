@@ -1,5 +1,5 @@
 import { Asset, Game, PlayerEntryArray, PlayerEntry } from './types'
-import { players } from './mockdata'
+import { players } from './mocks/mockdata'
 import { MongoClient, Db, Collection, ObjectId } from 'mongodb'
 import { choosePlayers } from './utils'
 const uri: string = process.env.MONGO_URI

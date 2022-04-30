@@ -1,10 +1,10 @@
-import { MessageEmbed, MessageEditOptions, MessageOptions } from 'discord.js'
-import { GameState, PlayerArray, RoundTypes, Player } from './types'
+import { MessageEmbed } from 'discord.js'
+import { GameState, PlayerArray, RoundTypes, Player } from '../types'
 
 const roundNames: RoundTypes = {
-  roundOne: 'Round one',
-  roundTwo: 'Round two',
-  semiFinals: 'Semi finals',
+  roundOne: 'Round One',
+  roundTwo: 'Round Two',
+  semiFinals: 'Semi Finals',
   finals: 'Finals',
 }
 
@@ -13,7 +13,7 @@ const createInitialEmbed = (round: string) => {
   const embed = new MessageEmbed()
     .setColor('#0099ff')
     .setTitle(`${roundNames[round]} started!`)
-    .setDescription('this is the initial embed')
+
   return {
     embeds: [embed],
     fetchReply: true,
@@ -23,9 +23,11 @@ const createInitialEmbed = (round: string) => {
 const createTurnEmbed = (state: GameState) => {
   const { players, round } = state
   const hpFields = players.map((player) => {
+    const { discordId, asset } = player
+    const { unitName } = asset
     return {
-      name: player.username,
-      value: player.hp.toString(),
+      name: `<@${discordId}> - ${unitName}`,
+      value: `HP: ${player.hp.toString()}`,
     }
   })
   const embed = new MessageEmbed()
@@ -40,11 +42,12 @@ const createTurnEmbed = (state: GameState) => {
 }
 
 const createMatchEmbed = (winningPlayer: Player, round: string) => {
-  const { username } = winningPlayer
+  const { username, asset } = winningPlayer
+  const { unitName } = asset
   const embed = new MessageEmbed()
     .setColor('#0099ff')
     .setTitle(`Results from ${roundNames[round]}`)
-    .setDescription(`${username} has won the match`)
+    .setDescription(`${username} has won the match with ${unitName}`)
 
   return {
     embeds: [embed],
@@ -52,18 +55,27 @@ const createMatchEmbed = (winningPlayer: Player, round: string) => {
   }
 }
 
-// Create round result embed
+const createNextMatchEmbed = (currentMatch: number, matchesLength: number) => {
+  const embed = new MessageEmbed()
+    .setColor('#0099ff')
+    .setTitle(`Commencing match ${currentMatch} out of ${matchesLength}`)
+
+  return {
+    embeds: [embed],
+    fetchReply: true,
+  }
+}
+
 const createRoundEmbed = (winningPlayers: PlayerArray, round: string) => {
-  // const buttonRow = createButton()
   const playerFields = winningPlayers.map((player) => {
-    return { name: `<@${player.discordId}>`, value: player.username }
+    const { discordId, asset } = player
+    return { name: `<@${discordId}>`, value: `${asset.unitName}` }
   })
 
   const embed = new MessageEmbed()
     .setColor('#0099ff')
-    .setTitle(`${roundNames[round]} completed`)
+    .setTitle(`${roundNames[round]} completed!`)
     .setDescription('Behold, our fearless survivors')
-    // .setThumbnail('')
     .addFields(playerFields)
   return {
     embeds: [embed],
@@ -88,5 +100,6 @@ export {
   createInitialEmbed,
   createTurnEmbed,
   createMatchEmbed,
+  createNextMatchEmbed,
   createWinningEmbed,
 }

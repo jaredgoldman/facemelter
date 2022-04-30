@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addPlayerAsset = exports.findPlayer = exports.addPlayer = exports.clearGame = exports.updateGame = exports.addGame = exports.findGame = exports.resetPlayers = exports.addPlayers = void 0;
-const mockdata_1 = require("./mockdata");
+const mockdata_1 = require("./mocks/mockdata");
 const mongodb_1 = require("mongodb");
 const utils_1 = require("./utils");
 const uri = process.env.MONGO_URI;

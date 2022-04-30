@@ -6,14 +6,17 @@ import {
   RegistrationResult,
   WalletAsset,
   User,
+  VerificationResult,
 } from './types'
 import algosdk, { Indexer } from 'algosdk'
 import AlgodClient from 'algosdk/dist/types/src/client/v2/algod/algod'
 import { addPlayer, findPlayer, addPlayerAsset } from './database'
+// import { Asset } from 'algosdk/dist/types/src/client/v2/algod/models/types'
 
 const algoNode: string = process.env.ALGO_NODE
 const pureStakeApi: string = process.env.PURESTAKE_API
 const algoIndexerNode: string = process.env.ALGO_INDEXER_NODE
+const optInAssetId: number = Number(process.env.OPT_IN_ASSET_ID)
 
 const token = {
   'X-API-Key': pureStakeApi,
@@ -31,12 +34,12 @@ const processRegistration = async (
   const algoIndexer = new algosdk.Indexer(token, indexerServer, port)
   const { id: discordId, username } = user
 
-  // First check if asset is owned
-  const isOwned: boolean | void = await determineOwnership(
-    algodClient,
-    address,
-    assetId
-  )
+  // Check if asset is owned
+  const { walletOwned, assetOwned }: VerificationResult =
+    await determineOwnership(algodClient, address, assetId)
+
+  const isOwned = walletOwned && assetOwned
+
   if (isOwned) {
     // If owned, find full player and asset data
     const player = await findPlayer(discordId)
@@ -66,6 +69,7 @@ const processRegistration = async (
 
     if (player) {
       const assetCount = player.assets.length + 1
+      // TODO: add check for 5 or less assets
       await addPlayerAsset(discordId, assetEntry)
       return {
         status: `Added ${unitName} for melting - this asset number ${assetCount} out of 5`,
@@ -84,8 +88,11 @@ const processRegistration = async (
       }
     }
   } else {
+    const status = walletOwned
+      ? `Looks like the wallet address entered doesn't hold this asset, please try again!`
+      : `Looks like you haven't opted in to to asset ${optInAssetId}`
     return {
-      status: `Looks like the wallet address entered doesn't hold this asset, please try again!`,
+      status,
       asset: null,
     }
   }
@@ -95,7 +102,7 @@ const findAsset = async (assetId: AssetId, indexer: Indexer) => {
   try {
     return await indexer.searchForAssets().index(assetId.value).do()
   } catch (error) {
-    console.log('ERROR finding asset', error)
+    throw new Error('Error finding asset')
   }
 }
 
@@ -103,20 +110,28 @@ const determineOwnership = async function (
   algodclient: AlgodClient,
   address: WalletAddress,
   assetId: AssetId
-): Promise<boolean | void> {
+): Promise<VerificationResult> {
   try {
     let accountInfo = await algodclient.accountInformation(address.value).do()
-    let isOwned = false
+    let assetOwned = false
+    let walletOwned = false
     accountInfo.assets.forEach((asset: WalletAsset) => {
+      // check for opt-in asset
+      if (asset[`asset-id`] === optInAssetId && !asset.amount) {
+        walletOwned = true
+      }
+      // check for entered asset
       if (asset['asset-id'] === assetId.value) {
-        isOwned = true
+        assetOwned = true
       }
     })
-    return isOwned
+    return {
+      assetOwned,
+      walletOwned,
+    }
   } catch (error) {
-    console.log('error determining ownership')
+    throw new Error('error determening ownership')
   }
-  // TODO: find way to authenticate that a user actually has the wallet address
 }
 
 export { processRegistration }

@@ -1,10 +1,4 @@
-import {
-  PlayerEntryArray,
-  Player,
-  PlayerEntry,
-  PlayerArray,
-  Asset,
-} from './types'
+import { PlayerEntryArray, PlayerEntry, PlayerArray, Asset } from './types'
 
 export const wait = async (duration: number) => {
   await new Promise((res) => {
@@ -44,7 +38,6 @@ const splitPlayers = (players: PlayerEntryArray): PlayerArray => {
     }))
     newPlayerArray.push(...splitEntries)
   })
-  console.log(newPlayerArray)
   return newPlayerArray
 }
 

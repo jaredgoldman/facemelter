@@ -1,10 +1,10 @@
 // @ts-nocheck
 import { Client, Intents, Interaction } from 'discord.js'
-import { playRound } from './controller'
-import { players } from './mockdata'
-import { processRegistration } from './processRegistration'
-import { asyncForEach, wait } from './utils'
-import { resetPlayers } from './database'
+import { playRound } from '../game/controller'
+import { players } from '../mocks/mockdata'
+import { processRegistration } from '../register'
+import { asyncForEach, wait } from '../utils'
+import { resetPlayers } from '../database'
 const token: string = process.env.DISCORD_TOKEN
 
 const client: Client = new Client({
@@ -53,6 +53,13 @@ client.on('interactionCreate', async (interaction: Interaction) => {
       ephemeral: true,
     })
   }
+
+  // if (commandName === 'verify-wallet') {
+  //   // run verify script
+  //   // if user does not have opt-in asset
+  //   // let user know to opt in
+  //   // if user does, submit success
+  // }
 })
 
 client.login(token)

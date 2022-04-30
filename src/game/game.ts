@@ -1,6 +1,6 @@
-import { createMatchEmbed, createTurnEmbed } from './embeds'
-import { GameState, Player, Match, PlayerArray } from './types'
-import { wait } from './utils'
+import { createMatchEmbed, createTurnEmbed } from '../discord/embeds'
+import { GameState, Player, Match, PlayerArray } from '../types'
+import { wait } from '../utils'
 
 let state: GameState = {
   players: [],
@@ -26,9 +26,10 @@ const playGame = async (match: Match, observeTime: number, round: string) => {
     }
     playRound()
   }
-  console.log('***** ROUND DETAILS *****')
-  console.log('winning player: ', winningPlayer['username'])
-  console.log('player state:', state.players)
+  // console.log('***** ROUND DETAILS *****')
+  // console.log('winning player: ', winningPlayer['username'])
+  // console.log('player state:', state.players)
+
   // display winning player
   if (observeTime) {
     const matchEmbed = createMatchEmbed(winningPlayer, round)

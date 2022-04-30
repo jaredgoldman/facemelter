@@ -8,6 +8,7 @@ declare global {
       ALGO_NODE: string
       ALGO_INDEXER_NODE: string
       PURESTAKE_API: string
+      OPT_IN_ASSET_ID: string
     }
   }
 }

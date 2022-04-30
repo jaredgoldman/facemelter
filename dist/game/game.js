@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.state = exports.playGame = void 0;
-const embeds_1 = require("./embeds");
-const utils_1 = require("./utils");
+const embeds_1 = require("../discord/embeds");
+const utils_1 = require("../utils");
 let state = {
     players: [],
     hp: 0,
@@ -33,9 +33,6 @@ const playGame = (match, observeTime, round) => __awaiter(void 0, void 0, void 0
         }
         playRound();
     }
-    console.log('***** ROUND DETAILS *****');
-    console.log('winning player: ', winningPlayer['username']);
-    console.log('player state:', state.players);
     if (observeTime) {
         const matchEmbed = (0, embeds_1.createMatchEmbed)(winningPlayer, round);
         yield state.embed.edit(matchEmbed);

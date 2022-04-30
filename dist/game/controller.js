@@ -11,14 +11,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.playRound = void 0;
 const game_1 = require("./game");
-const database_1 = require("./database");
-const utils_1 = require("./utils");
-const embeds_1 = require("./embeds");
+const database_1 = require("../database");
+const utils_1 = require("../utils");
+const embeds_1 = require("../discord/embeds");
 const playRound = (interaction) => __awaiter(void 0, void 0, void 0, function* () {
     const game = yield determineGame();
     const { players, _id: gameId, round } = game;
     const initialEmbed = (0, embeds_1.createInitialEmbed)(round);
     game_1.state.embed = yield interaction.reply(initialEmbed);
+    yield (0, utils_1.wait)(1000);
     const matches = groupMatches(players);
     const winningPlayers = yield playMatches(matches, game.observeTime, round);
     const { nextRoundType, observeTime } = (0, utils_1.getNextRoundData)(winningPlayers.length);
@@ -45,14 +46,21 @@ const groupMatches = (players) => {
     for (let i = 0; i <= players.length - 1; i += 2) {
         const player1 = players[i];
         const player2 = players[i + 1];
-        const hp = 1000;
+        const hp = 100;
         matches.push({ player1, player2, hp });
     }
     return matches;
 };
 const playMatches = (matches, observeTime, round) => __awaiter(void 0, void 0, void 0, function* () {
     const winningPlayers = [];
-    yield (0, utils_1.asyncForEach)(matches, (match) => __awaiter(void 0, void 0, void 0, function* () {
+    yield (0, utils_1.asyncForEach)(matches, (match, i) => __awaiter(void 0, void 0, void 0, function* () {
+        if (observeTime && round !== 'finals') {
+            const currentMatch = i + 1;
+            const matchesLength = matches.length;
+            const nextMatchEmbed = (0, embeds_1.createNextMatchEmbed)(currentMatch, matchesLength);
+            yield game_1.state.embed.edit(nextMatchEmbed);
+            yield (0, utils_1.wait)(1000);
+        }
         const winningPlayer = yield (0, game_1.playGame)(match, observeTime, round);
         winningPlayers.push(winningPlayer);
     }));
@@ -61,12 +69,8 @@ const playMatches = (matches, observeTime, round) => __awaiter(void 0, void 0, v
 const determineGame = () => __awaiter(void 0, void 0, void 0, function* () {
     let game = yield (0, database_1.findGame)();
     if (!game) {
-        console.log('adding game');
         yield (0, database_1.addGame)();
         game = yield (0, database_1.findGame)();
-    }
-    else {
-        console.log('game exists');
     }
     return game;
 });

@@ -1,14 +1,15 @@
-import { Player, Game, Match, PlayerArray } from './types'
+import { Player, Game, Match, PlayerArray } from '../types'
 import { playGame, state } from './game'
-import { findGame, addGame, updateGame, clearGame } from './database'
+import { findGame, addGame, updateGame, clearGame } from '../database'
 import { WithId } from 'mongodb'
-import { asyncForEach, getNextRoundData } from './utils'
+import { asyncForEach, getNextRoundData, wait } from '../utils'
 import {
   createRoundEmbed,
   createWinningEmbed,
   createInitialEmbed,
-} from './embeds'
-import { InteractionReplyOptions, Interaction } from 'discord.js'
+  createNextMatchEmbed,
+} from '../discord/embeds'
+import { InteractionReplyOptions } from 'discord.js'
 
 const playRound = async (interaction: any) => {
   // attempt to retreive game
@@ -17,6 +18,7 @@ const playRound = async (interaction: any) => {
   // create initial embed
   const initialEmbed: InteractionReplyOptions = createInitialEmbed(round)
   state.embed = await interaction.reply(initialEmbed)
+  await wait(1000)
   // convert players into pairs
   const matches = groupMatches(players)
   // play game with each set of players
@@ -26,7 +28,9 @@ const playRound = async (interaction: any) => {
   if (nextRoundType === 'gameover') {
     // clear game entry and display winner of tournament
     clearGame()
-    const winningEmbed = createWinningEmbed(winningPlayers[0])
+    const winningEmbed: InteractionReplyOptions = createWinningEmbed(
+      winningPlayers[0]
+    )
     return state.embed.edit(winningEmbed)
   } else {
     const nextGame: Game = {
@@ -38,7 +42,10 @@ const playRound = async (interaction: any) => {
     await updateGame(nextGame, gameId)
   }
   // render round results
-  const roundEmbed = createRoundEmbed(winningPlayers, round)
+  const roundEmbed: InteractionReplyOptions = createRoundEmbed(
+    winningPlayers,
+    round
+  )
   await state.embed.edit(roundEmbed)
   return winningPlayers
 }
@@ -48,7 +55,7 @@ const groupMatches = (players: PlayerArray) => {
   for (let i = 0; i <= players.length - 1; i += 2) {
     const player1: Player = players[i]
     const player2: Player = players[i + 1]
-    const hp = 1000
+    const hp = 100
 
     matches.push({ player1, player2, hp })
   }
@@ -61,11 +68,21 @@ const playMatches = async (
   round: string
 ): Promise<PlayerArray> => {
   const winningPlayers: any[] = []
-  await asyncForEach(matches, async (match: Match) => {
+  await asyncForEach(matches, async (match: Match, i: number) => {
+    if (observeTime && round !== 'finals') {
+      // update embed to show next match is starting
+      const currentMatch = i + 1
+      const matchesLength = matches.length
+      const nextMatchEmbed: InteractionReplyOptions = createNextMatchEmbed(
+        currentMatch,
+        matchesLength
+      )
+      await state.embed.edit(nextMatchEmbed)
+      await wait(1000)
+    }
     const winningPlayer: Player = await playGame(match, observeTime, round)
     winningPlayers.push(winningPlayer)
   })
-  // update embed to show winning players of round
   return winningPlayers
 }
 
@@ -73,11 +90,8 @@ const determineGame = async () => {
   let game: WithId<Game | any> = await findGame()
   // if there is not already a game object, create one and add players
   if (!game) {
-    console.log('adding game')
     await addGame()
     game = await findGame()
-  } else {
-    console.log('game exists')
   }
   return game
 }

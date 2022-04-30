@@ -53,7 +53,6 @@ const splitPlayers = (players) => {
         }));
         newPlayerArray.push(...splitEntries);
     });
-    console.log(newPlayerArray);
     return newPlayerArray;
 };
 const choosePlayers = (players, length) => {
