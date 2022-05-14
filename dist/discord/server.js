@@ -11,10 +11,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const controller_1 = require("../game/controller");
-const mockdata_1 = require("../mocks/mockdata");
+const mocks_1 = require("../mocks");
 const register_1 = require("../register");
 const utils_1 = require("../utils");
 const database_1 = require("../database");
+const embeds_1 = require("./embeds");
+const canvas_1 = require("../canvas");
 const token = process.env.DISCORD_TOKEN;
 const client = new discord_js_1.Client({
     intents: [discord_js_1.Intents.FLAGS.GUILDS, discord_js_1.Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS],
@@ -30,20 +32,25 @@ client.on('interactionCreate', (interaction) => __awaiter(void 0, void 0, void 0
         yield (0, controller_1.playRound)(interaction);
     }
     if (commandName === 'register') {
-        const { _hoistedOptions: [address, assetId], } = options;
-        const { status } = yield (0, register_1.processRegistration)(user, address, assetId);
-        interaction.reply({
-            content: status,
-            ephemeral: true,
-        });
+        interaction.deferReply();
+        const address = options.getString('address');
+        const assetId = options.getNumber('assetid');
+        const { status, asset, registeredUser } = yield (0, register_1.processRegistration)(user, address, assetId);
+        if (asset) {
+            const registerEmbed = (0, embeds_1.createRegisterEmbed)(asset, registeredUser);
+            interaction.reply(registerEmbed);
+        }
+        else {
+            interaction.reply({
+                content: status,
+                ephemeral: true,
+            });
+        }
     }
     if (commandName === 'setup-test') {
-        interaction.reply({
-            content: 'adding test players...',
-            ephemeral: true,
-        });
+        interaction.deferReply();
         yield (0, database_1.resetPlayers)();
-        yield (0, utils_1.asyncForEach)(mockdata_1.players, (player) => __awaiter(void 0, void 0, void 0, function* () {
+        yield (0, utils_1.asyncForEach)(mocks_1.mockPlayers, (player) => __awaiter(void 0, void 0, void 0, function* () {
             const { user, address, assetId } = player;
             yield (0, register_1.processRegistration)(user, address, assetId);
             yield (0, utils_1.wait)(1);
@@ -52,6 +59,16 @@ client.on('interactionCreate', (interaction) => __awaiter(void 0, void 0, void 0
             content: 'test players added!',
             ephemeral: true,
         });
+    }
+    if (commandName === 'canvas') {
+        try {
+            const canvas = yield (0, canvas_1.main)(null, 10, mocks_1.mockAssets);
+            const attachment = new discord_js_1.MessageAttachment(canvas.toBuffer('image/png'), 'test-melt.png');
+            yield interaction.reply({ files: [attachment] });
+        }
+        catch (error) {
+            console.log(error);
+        }
     }
 }));
 client.login(token);

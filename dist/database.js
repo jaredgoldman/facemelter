@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addPlayerAsset = exports.findPlayer = exports.addPlayer = exports.clearGame = exports.updateGame = exports.addGame = exports.findGame = exports.resetPlayers = exports.addPlayers = void 0;
-const mockdata_1 = require("./mocks/mockdata");
+const mocks_1 = require("./mocks/");
 const mongodb_1 = require("mongodb");
 const utils_1 = require("./utils");
 const uri = process.env.MONGO_URI;
@@ -19,7 +19,7 @@ client.connect();
 const addPlayers = () => __awaiter(void 0, void 0, void 0, function* () {
     const database = client.db('facemelter');
     const collection = database.collection('users');
-    yield collection.insertMany(mockdata_1.players);
+    yield collection.insertMany(mocks_1.mockPlayers);
 });
 exports.addPlayers = addPlayers;
 const resetPlayers = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -29,14 +29,9 @@ const resetPlayers = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.resetPlayers = resetPlayers;
 const findGame = () => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const database = client.db('facemelter');
-        const collection = database.collection('game');
-        return yield collection.findOne();
-    }
-    catch (error) {
-        console.log('error finding game');
-    }
+    const database = client.db('facemelter');
+    const collection = database.collection('game');
+    return yield collection.findOne();
 });
 exports.findGame = findGame;
 const getPlayers = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -47,7 +42,7 @@ const getPlayers = () => __awaiter(void 0, void 0, void 0, function* () {
 const addGame = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const players = yield getPlayers();
-        const randomizedPlayers = (0, utils_1.choosePlayers)(players, 15);
+        const randomizedPlayers = (0, utils_1.choosePlayers)(players, 16);
         const game = {
             round: 'roundOne',
             players: randomizedPlayers,

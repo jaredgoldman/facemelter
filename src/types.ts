@@ -1,5 +1,4 @@
 import { ObjectId } from 'mongodb'
-import { Interaction, MessageManager } from 'discord.js'
 
 export interface GameState {
   players: PlayerArray
@@ -52,18 +51,6 @@ export type PlayerArray = Player[] | []
 
 export type PlayerEntryArray = PlayerEntry[] | []
 
-export type AssetId = {
-  name: string
-  type: string
-  value: number
-}
-
-export type WalletAddress = {
-  name: string
-  type: string
-  value: string
-}
-
 export type WalletAsset = {
   [key: string]: number | boolean
   amount: number
@@ -81,6 +68,7 @@ export interface Asset {
 export interface RegistrationResult {
   status: string
   asset: Asset | null
+  registeredUser: User
 }
 
 export interface VerificationResult {
@@ -92,10 +80,4 @@ export interface RoundTypes {
   [key: string]: string
 }
 
-export type Options = AssetId[] | WalletAddress[]
-
-export interface InteractionWithOptions extends Interaction {
-  options: {
-    _hoistedOptions: Options
-  }
-}
+export interface PlayerRegistrationEntry {}

@@ -14,7 +14,12 @@ let winningPlayer: Player | undefined
 
 let observe: number | null
 
-const playGame = async (match: Match, observeTime: number, round: string) => {
+const playGame = async (
+  match: Match,
+  observeTime: number,
+  round: string,
+  interaction: any
+) => {
   observe = observeTime
   // reset winning player
   winningPlayer = undefined
@@ -24,7 +29,7 @@ const playGame = async (match: Match, observeTime: number, round: string) => {
     if (observeTime) {
       await wait(observeTime)
     }
-    playRound()
+    playRound(interaction)
   }
   // console.log('***** ROUND DETAILS *****')
   // console.log('winning player: ', winningPlayer['username'])
@@ -58,7 +63,7 @@ const createGameState = (
   }
 }
 
-const playRound = async () => {
+const playRound = async (interaction: any) => {
   const { players, hp } = state
 
   if (Array.isArray(players)) {

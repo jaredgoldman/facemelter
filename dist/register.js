@@ -26,62 +26,78 @@ const server = algoNode;
 const indexerServer = algoIndexerNode;
 const port = '';
 const processRegistration = (user, address, assetId) => __awaiter(void 0, void 0, void 0, function* () {
-    const algodClient = new algosdk_1.default.Algodv2(token, server, port);
-    const algoIndexer = new algosdk_1.default.Indexer(token, indexerServer, port);
-    const { id: discordId, username } = user;
-    const { walletOwned, assetOwned } = yield determineOwnership(algodClient, address, assetId);
-    const isOwned = walletOwned && assetOwned;
-    if (isOwned) {
-        const player = yield (0, database_1.findPlayer)(discordId);
-        const asset = yield findAsset(assetId, algoIndexer);
-        const { name: assetName, url: assetUrl, 'unit-name': unitName, } = asset === null || asset === void 0 ? void 0 : asset.assets[0].params;
-        if (unitName.slice(0, 5) !== 'RCONE') {
-            return {
-                status: 'This asset is not a randy cone, please try again with a meltable NFT',
-                asset: null,
+    try {
+        const algodClient = new algosdk_1.default.Algodv2(token, server, port);
+        const algoIndexer = new algosdk_1.default.Indexer(token, indexerServer, port);
+        const { id: discordId, username } = user;
+        const { walletOwned, assetOwned } = yield determineOwnership(algodClient, address, assetId);
+        const isOwned = walletOwned && assetOwned;
+        if (isOwned) {
+            const player = yield (0, database_1.findPlayer)(discordId);
+            const asset = yield findAsset(assetId, algoIndexer);
+            const { name: assetName, url: assetUrl, 'unit-name': unitName, } = asset === null || asset === void 0 ? void 0 : asset.assets[0].params;
+            if (unitName.slice(0, 5) !== 'RCONE') {
+                return {
+                    status: 'This asset is not a randy cone, please try again with a meltable NFT',
+                    asset: null,
+                    registeredUser: user,
+                };
+            }
+            const assetEntry = {
+                assetUrl,
+                assetName,
+                assetId: assetId,
+                unitName,
             };
-        }
-        const assetEntry = {
-            assetUrl,
-            assetName,
-            assetId: assetId.value,
-            unitName,
-        };
-        if (player) {
-            const assetCount = player.assets.length + 1;
-            yield (0, database_1.addPlayerAsset)(discordId, assetEntry);
-            return {
-                status: `Added ${unitName} for melting - this asset number ${assetCount} out of 5`,
-                asset: assetEntry,
-            };
-        }
-        else {
+            if (player) {
+                const assetCount = player.assets.length + 1;
+                if (assetCount >= 5) {
+                    return {
+                        status: `You've added 5 or more assets already`,
+                        asset: null,
+                        registeredUser: user,
+                    };
+                }
+                yield (0, database_1.addPlayerAsset)(discordId, assetEntry);
+                return {
+                    status: `Added ${unitName} for melting - this asset number ${assetCount} out of 5`,
+                    asset: assetEntry,
+                    registeredUser: user,
+                };
+            }
             yield (0, database_1.addPlayer)({
                 discordId,
                 username,
-                address: address.value,
+                address: address,
                 assets: [assetEntry],
             });
             return {
                 status: `Added ${unitName} for melting - you can add up to 4 more assets`,
                 asset: assetEntry,
+                registeredUser: user,
             };
         }
-    }
-    else {
         const status = walletOwned
             ? `Looks like the wallet address entered doesn't hold this asset, please try again!`
-            : `Looks like you haven't opted in to to asset ${optInAssetId}`;
+            : `Looks like you haven't opted in to to asset ${optInAssetId}. Please opt in on Rand Gallery by using this link: https://www.randgallery.com/algo-collection/?address=${optInAssetId}`;
         return {
             status,
             asset: null,
+            registeredUser: user,
+        };
+    }
+    catch (error) {
+        return {
+            status: 'Something went wrong during registration, please try again',
+            asset: null,
+            registeredUser: user,
         };
     }
 });
 exports.processRegistration = processRegistration;
 const findAsset = (assetId, indexer) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        return yield indexer.searchForAssets().index(assetId.value).do();
+        return yield indexer.searchForAssets().index(assetId).do();
     }
     catch (error) {
         throw new Error('Error finding asset');
@@ -90,14 +106,14 @@ const findAsset = (assetId, indexer) => __awaiter(void 0, void 0, void 0, functi
 const determineOwnership = function (algodclient, address, assetId) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            let accountInfo = yield algodclient.accountInformation(address.value).do();
+            let accountInfo = yield algodclient.accountInformation(address).do();
             let assetOwned = false;
             let walletOwned = false;
             accountInfo.assets.forEach((asset) => {
                 if (asset[`asset-id`] === optInAssetId && !asset.amount) {
                     walletOwned = true;
                 }
-                if (asset['asset-id'] === assetId.value) {
+                if (asset['asset-id'] === assetId) {
                     assetOwned = true;
                 }
             });

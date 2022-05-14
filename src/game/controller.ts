@@ -11,6 +11,9 @@ import {
 } from '../discord/embeds'
 import { InteractionReplyOptions } from 'discord.js'
 
+/*
+  Players series of matches for each round
+*/
 const playRound = async (interaction: any) => {
   // attempt to retreive game
   const game = await determineGame()
@@ -22,7 +25,12 @@ const playRound = async (interaction: any) => {
   // convert players into pairs
   const matches = groupMatches(players)
   // play game with each set of players
-  const winningPlayers = await playMatches(matches, game.observeTime, round)
+  const winningPlayers = await playMatches(
+    matches,
+    game.observeTime,
+    round,
+    interaction
+  )
   const { nextRoundType, observeTime } = getNextRoundData(winningPlayers.length)
 
   if (nextRoundType === 'gameover') {
@@ -65,7 +73,8 @@ const groupMatches = (players: PlayerArray) => {
 const playMatches = async (
   matches: Match[],
   observeTime: number,
-  round: string
+  round: string,
+  interaction: any
 ): Promise<PlayerArray> => {
   const winningPlayers: any[] = []
   await asyncForEach(matches, async (match: Match, i: number) => {
@@ -80,7 +89,12 @@ const playMatches = async (
       await state.embed.edit(nextMatchEmbed)
       await wait(1000)
     }
-    const winningPlayer: Player = await playGame(match, observeTime, round)
+    const winningPlayer: Player = await playGame(
+      match,
+      observeTime,
+      round,
+      interaction
+    )
     winningPlayers.push(winningPlayer)
   })
   return winningPlayers
@@ -90,8 +104,11 @@ const determineGame = async () => {
   let game: WithId<Game | any> = await findGame()
   // if there is not already a game object, create one and add players
   if (!game) {
+    console.log('game does not exist')
     await addGame()
     game = await findGame()
+  } else {
+    console.log('game exists')
   }
   return game
 }

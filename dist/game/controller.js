@@ -21,7 +21,7 @@ const playRound = (interaction) => __awaiter(void 0, void 0, void 0, function* (
     game_1.state.embed = yield interaction.reply(initialEmbed);
     yield (0, utils_1.wait)(1000);
     const matches = groupMatches(players);
-    const winningPlayers = yield playMatches(matches, game.observeTime, round);
+    const winningPlayers = yield playMatches(matches, game.observeTime, round, interaction);
     const { nextRoundType, observeTime } = (0, utils_1.getNextRoundData)(winningPlayers.length);
     if (nextRoundType === 'gameover') {
         (0, database_1.clearGame)();
@@ -51,7 +51,7 @@ const groupMatches = (players) => {
     }
     return matches;
 };
-const playMatches = (matches, observeTime, round) => __awaiter(void 0, void 0, void 0, function* () {
+const playMatches = (matches, observeTime, round, interaction) => __awaiter(void 0, void 0, void 0, function* () {
     const winningPlayers = [];
     yield (0, utils_1.asyncForEach)(matches, (match, i) => __awaiter(void 0, void 0, void 0, function* () {
         if (observeTime && round !== 'finals') {
@@ -61,7 +61,7 @@ const playMatches = (matches, observeTime, round) => __awaiter(void 0, void 0, v
             yield game_1.state.embed.edit(nextMatchEmbed);
             yield (0, utils_1.wait)(1000);
         }
-        const winningPlayer = yield (0, game_1.playGame)(match, observeTime, round);
+        const winningPlayer = yield (0, game_1.playGame)(match, observeTime, round, interaction);
         winningPlayers.push(winningPlayer);
     }));
     return winningPlayers;
@@ -69,8 +69,12 @@ const playMatches = (matches, observeTime, round) => __awaiter(void 0, void 0, v
 const determineGame = () => __awaiter(void 0, void 0, void 0, function* () {
     let game = yield (0, database_1.findGame)();
     if (!game) {
+        console.log('game does not exist');
         yield (0, database_1.addGame)();
         game = yield (0, database_1.findGame)();
+    }
+    else {
+        console.log('game exists');
     }
     return game;
 });

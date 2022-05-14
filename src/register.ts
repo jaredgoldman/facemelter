@@ -1,7 +1,4 @@
-// import { User } from 'discord.js'
 import {
-  AssetId,
-  WalletAddress,
   Asset,
   RegistrationResult,
   WalletAsset,
@@ -11,7 +8,6 @@ import {
 import algosdk, { Indexer } from 'algosdk'
 import AlgodClient from 'algosdk/dist/types/src/client/v2/algod/algod'
 import { addPlayer, findPlayer, addPlayerAsset } from './database'
-// import { Asset } from 'algosdk/dist/types/src/client/v2/algod/models/types'
 
 const algoNode: string = process.env.ALGO_NODE
 const pureStakeApi: string = process.env.PURESTAKE_API
@@ -27,80 +23,98 @@ const port = ''
 
 const processRegistration = async (
   user: User,
-  address: WalletAddress,
-  assetId: AssetId
+  address: string,
+  assetId: number
 ): Promise<RegistrationResult> => {
-  const algodClient = new algosdk.Algodv2(token, server, port)
-  const algoIndexer = new algosdk.Indexer(token, indexerServer, port)
-  const { id: discordId, username } = user
+  try {
+    const algodClient = new algosdk.Algodv2(token, server, port)
+    const algoIndexer = new algosdk.Indexer(token, indexerServer, port)
+    const { id: discordId, username } = user
 
-  // Check if asset is owned
-  const { walletOwned, assetOwned }: VerificationResult =
-    await determineOwnership(algodClient, address, assetId)
+    // Check if asset is owned and wallet has opt-in asset
+    const { walletOwned, assetOwned }: VerificationResult =
+      await determineOwnership(algodClient, address, assetId)
 
-  const isOwned = walletOwned && assetOwned
+    const isOwned = walletOwned && assetOwned
 
-  if (isOwned) {
-    // If owned, find full player and asset data
-    const player = await findPlayer(discordId)
-    const asset = await findAsset(assetId, algoIndexer)
+    if (isOwned) {
+      // If owned, find full player and asset data
+      const player = await findPlayer(discordId)
+      const asset = await findAsset(assetId, algoIndexer)
 
-    const {
-      name: assetName,
-      url: assetUrl,
-      'unit-name': unitName,
-    } = asset?.assets[0].params
+      const {
+        name: assetName,
+        url: assetUrl,
+        'unit-name': unitName,
+      } = asset?.assets[0].params
 
-    // Check if it's a randy cone
-    if (unitName.slice(0, 5) !== 'RCONE') {
-      return {
-        status:
-          'This asset is not a randy cone, please try again with a meltable NFT',
-        asset: null,
+      // Check if it's a Randy Cone
+      if (unitName.slice(0, 5) !== 'RCONE') {
+        return {
+          status:
+            'This asset is not a randy cone, please try again with a meltable NFT',
+          asset: null,
+          registeredUser: user,
+        }
       }
-    }
 
-    const assetEntry: Asset = {
-      assetUrl,
-      assetName,
-      assetId: assetId.value,
-      unitName,
-    }
-
-    if (player) {
-      const assetCount = player.assets.length + 1
-      // TODO: add check for 5 or less assets
-      await addPlayerAsset(discordId, assetEntry)
-      return {
-        status: `Added ${unitName} for melting - this asset number ${assetCount} out of 5`,
-        asset: assetEntry,
+      const assetEntry: Asset = {
+        assetUrl,
+        assetName,
+        assetId: assetId,
+        unitName,
       }
-    } else {
+
+      if (player) {
+        const assetCount = player.assets.length + 1
+        if (assetCount >= 5) {
+          return {
+            status: `You've added 5 or more assets already`,
+            asset: null,
+            registeredUser: user,
+          }
+        }
+        await addPlayerAsset(discordId, assetEntry)
+        return {
+          status: `Added ${unitName} for melting - this asset number ${assetCount} out of 5`,
+          asset: assetEntry,
+          registeredUser: user,
+        }
+      }
+      // Player doesn't exist, add to db
       await addPlayer({
         discordId,
         username,
-        address: address.value,
+        address: address,
         assets: [assetEntry],
       })
       return {
         status: `Added ${unitName} for melting - you can add up to 4 more assets`,
         asset: assetEntry,
+        registeredUser: user,
       }
     }
-  } else {
+    // Either wallet isn't owned or asset is not owned by wallet
     const status = walletOwned
       ? `Looks like the wallet address entered doesn't hold this asset, please try again!`
-      : `Looks like you haven't opted in to to asset ${optInAssetId}`
+      : `Looks like you haven't opted in to to asset ${optInAssetId}. Please opt in on Rand Gallery by using this link: https://www.randgallery.com/algo-collection/?address=${optInAssetId}`
     return {
       status,
       asset: null,
+      registeredUser: user,
+    }
+  } catch (error) {
+    return {
+      status: 'Something went wrong during registration, please try again',
+      asset: null,
+      registeredUser: user,
     }
   }
 }
 
-const findAsset = async (assetId: AssetId, indexer: Indexer) => {
+const findAsset = async (assetId: number, indexer: Indexer) => {
   try {
-    return await indexer.searchForAssets().index(assetId.value).do()
+    return await indexer.searchForAssets().index(assetId).do()
   } catch (error) {
     throw new Error('Error finding asset')
   }
@@ -108,20 +122,20 @@ const findAsset = async (assetId: AssetId, indexer: Indexer) => {
 
 const determineOwnership = async function (
   algodclient: AlgodClient,
-  address: WalletAddress,
-  assetId: AssetId
+  address: string,
+  assetId: number
 ): Promise<VerificationResult> {
   try {
-    let accountInfo = await algodclient.accountInformation(address.value).do()
+    let accountInfo = await algodclient.accountInformation(address).do()
     let assetOwned = false
     let walletOwned = false
     accountInfo.assets.forEach((asset: WalletAsset) => {
-      // check for opt-in asset
+      // Check for opt-in asset
       if (asset[`asset-id`] === optInAssetId && !asset.amount) {
         walletOwned = true
       }
-      // check for entered asset
-      if (asset['asset-id'] === assetId.value) {
+      // Check for entered asset
+      if (asset['asset-id'] === assetId) {
         assetOwned = true
       }
     })

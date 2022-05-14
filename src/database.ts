@@ -1,5 +1,5 @@
 import { Asset, Game, PlayerEntryArray, PlayerEntry } from './types'
-import { players } from './mocks/mockdata'
+import { mockPlayers } from './mocks/'
 import { MongoClient, Db, Collection, ObjectId } from 'mongodb'
 import { choosePlayers } from './utils'
 const uri: string = process.env.MONGO_URI
@@ -10,7 +10,7 @@ client.connect()
 const addPlayers = async () => {
   const database: Db = client.db('facemelter')
   const collection: Collection = database.collection('users')
-  await collection.insertMany(players)
+  await collection.insertMany(mockPlayers)
 }
 
 const resetPlayers = async () => {
@@ -20,13 +20,9 @@ const resetPlayers = async () => {
 }
 
 const findGame = async () => {
-  try {
-    const database: Db = client.db('facemelter')
-    const collection: Collection = database.collection('game')
-    return await collection.findOne()
-  } catch (error) {
-    console.log('error finding game')
-  }
+  const database: Db = client.db('facemelter')
+  const collection: Collection = database.collection('game')
+  return await collection.findOne()
 }
 
 const getPlayers = async () => {
@@ -38,7 +34,7 @@ const getPlayers = async () => {
 const addGame = async () => {
   try {
     const players = await getPlayers()
-    const randomizedPlayers = choosePlayers(players, 15)
+    const randomizedPlayers = choosePlayers(players, 16)
     const game: Game = {
       round: 'roundOne',
       players: randomizedPlayers,

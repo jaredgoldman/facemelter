@@ -1,4 +1,6 @@
 import { PlayerEntryArray, PlayerEntry, PlayerArray, Asset } from './types'
+import axios from 'axios'
+import fs from 'fs'
 
 export const wait = async (duration: number) => {
   await new Promise((res) => {
@@ -6,7 +8,7 @@ export const wait = async (duration: number) => {
   })
 }
 
-export const asyncForEach = async (array: Array<any>, callback: Function) => {
+export const asyncForEach = async (array: Array<any>, callback: any) => {
   for (let index = 0; index < array.length; index++) {
     try {
       await callback(array[index], index, array)
@@ -19,8 +21,8 @@ export const asyncForEach = async (array: Array<any>, callback: Function) => {
 export const getNextRoundData = (length: number) => {
   if (length === 16) return { nextRoundType: 'roundOne', observeTime: 0 }
   if (length === 8) return { nextRoundType: 'roundTwo', observeTime: 0 }
-  if (length === 4) return { nextRoundType: 'semiFinals', observeTime: 2000 }
-  if (length === 2) return { nextRoundType: 'finals', observeTime: 2000 }
+  if (length === 4) return { nextRoundType: 'semiFinals', observeTime: 1000 }
+  if (length === 2) return { nextRoundType: 'finals', observeTime: 1000 }
   else return { nextRoundType: 'gameover', observeTime: 0 }
 }
 
@@ -49,7 +51,7 @@ export const choosePlayers = (
   const splitPlayerArray: PlayerArray = splitPlayers(players)
   const playerArray = []
   const randomIndexes: Array<number> = []
-  while (playerArray.length <= length) {
+  while (playerArray.length < length) {
     const randomIndex: number = Math.floor(
       Math.random() * splitPlayerArray.length
     )
@@ -59,4 +61,23 @@ export const choosePlayers = (
     }
   }
   return playerArray
+}
+
+export const downloadFile = async (
+  imageUrl: string,
+  directory: string
+): Promise<string> => {
+  const path = `${directory}/image.jpg`
+  const writer = fs.createWriteStream(path)
+  const res = await axios.get(imageUrl, {
+    responseType: 'stream',
+  })
+  res.data.pipe(writer)
+
+  return new Promise((resolve, reject) => {
+    writer.on('finish', () => {
+      return resolve(path)
+    })
+    writer.on('error', reject)
+  })
 }

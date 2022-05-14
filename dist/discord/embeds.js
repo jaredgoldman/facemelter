@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createWinningEmbed = exports.createNextMatchEmbed = exports.createMatchEmbed = exports.createTurnEmbed = exports.createInitialEmbed = exports.createRoundEmbed = void 0;
+exports.createRegisterEmbed = exports.createWinningEmbed = exports.createNextMatchEmbed = exports.createMatchEmbed = exports.createTurnEmbed = exports.createInitialEmbed = exports.createRoundEmbed = void 0;
 const discord_js_1 = require("discord.js");
 const roundNames = {
     roundOne: 'Round One',
@@ -32,7 +32,8 @@ const createTurnEmbed = (state) => {
         .setColor('#0099ff')
         .setTitle(`${roundNames[round]}`)
         .setDescription(`Who will survive the meltening?`)
-        .addFields(hpFields);
+        .addFields(hpFields)
+        .setImage(players[0].asset.assetUrl);
     return {
         embeds: [embed],
         fetchReply: true,
@@ -90,3 +91,17 @@ const createWinningEmbed = (winningPlayer) => {
     };
 };
 exports.createWinningEmbed = createWinningEmbed;
+const createRegisterEmbed = (asset, user) => {
+    const { username } = user;
+    const { unitName, assetUrl } = asset;
+    const embed = new discord_js_1.MessageEmbed()
+        .setColor('#0099ff')
+        .setTitle(`REGISTER SUCCESS`)
+        .setDescription(`${username} has entered ${unitName} for melting!`)
+        .setThumbnail(assetUrl);
+    return {
+        embeds: [embed],
+        fetchReply: true,
+    };
+};
+exports.createRegisterEmbed = createRegisterEmbed;
