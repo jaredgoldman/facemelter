@@ -45,6 +45,12 @@ client.on('interactionCreate', async (interaction: any) => {
     }
   }
 
+  /*
+   *****************
+   * TEST COMMANDS *
+   *****************
+   */
+
   // test registring and selecting players
   if (commandName === 'setup-test') {
     interaction.deferReply()
