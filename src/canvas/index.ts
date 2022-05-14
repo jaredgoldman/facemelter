@@ -91,15 +91,20 @@ const drawNfts = async (asset: Asset) => {
 }
 
 const drawMelt = async (meltNum: number) => {
+  // For each image on the canvas
   await asyncForEach(nftData.imageData, async ({ meltData }: ImageData) => {
+    // Implement melt effect meltNum times
     for (let i = 0; i < meltNum; i++) {
       /*
         Currently I'm just drawing a bunch of circles here
         that offset on the y axis by the index every time 
         the loop is run.
 
+        You can use some of the utils I've created for finding the most relevent 
+        colors if you want
+
         This is likely where you'll want to implement the "melting" logic
-        
+
       */
       const { startX, startY } = meltData
       ctx.fillStyle = getPixelColor(startX, startY, ctx).cssValue
