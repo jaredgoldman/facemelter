@@ -6,7 +6,7 @@ import { asyncForEach, wait } from '../utils'
 import { resetPlayers } from '../database'
 import { RegistrationResult } from '../types'
 import { createRegisterEmbed } from './embeds'
-import { main } from '../canvas'
+import { main as doCanvas } from '../canvas'
 const token: string = process.env.DISCORD_TOKEN
 
 const client: Client = new Client({
@@ -69,7 +69,7 @@ client.on('interactionCreate', async (interaction: any) => {
   // for testing purposes
   if (commandName === 'canvas') {
     try {
-      const canvas = await main(null, 10, mockAssets)
+      const canvas = await doCanvas(null, 10, mockAssets)
       const attachment = new MessageAttachment(
         canvas.toBuffer('image/png'),
         'test-melt.png'
