@@ -8,15 +8,18 @@ Before starting make sure to add and update env file with the values specified b
 
 ### Environment Values
 
-```ts
-- MONGO_URL: string (mongodb+srv://...)
-- DISCORD_TOKEN: string
-- DISCORD_CLIENT_ID: string
-- DISCORD_GUILD_ID: string
-- ALGO_NODE: string (https://mainnet-algorand.api.purestake.io/ps2)
-- ALGO_INDEXER_NODE: string (https://mainnet-algorand.api.purestake.io/idx2)
-- PURESTAKE_API: string
-- OPT_IN_ASSET_ID: number
+```typescript
+MONGO_URL: string
+// mongodb+srv://...
+DISCORD_TOKEN: string
+DISCORD_CLIENT_ID: string
+DISCORD_GUILD_ID: string
+ALGO_NODE: string
+// https://mainnet-algorand.api.purestake.io/ps2
+ALGO_INDEXER_NODE: string
+// https://mainnet-algorand.api.purestake.io/idx2
+PURESTAKE_API: string
+OPT_IN_ASSET_ID: number
 ```
 
 ### Slash Commands
