@@ -1,6 +1,6 @@
 # FACEMELTER
 
-Facemelter is a discord bot that exposes a game which allows players to enter RandyCone NFTS and witness them compete against each other under for survival under the hot sun. The game comprises of 4 rounds (round one, round two, semi-finals and finals) in which winning players advance through. The final two rounds feature visualizatons of each players NFTs getting melted via the canvas API.
+Facemelter is a discord bot that exposes a game which allows players to enter RandyCone NFTS and witness them compete against each other for survival under the hot sun. The game comprises of 4 rounds (round one, round two, semi-finals and finals) in which winning players advance through. The final two rounds feature visualizatons of each players NFTs getting melted via the canvas API.
 
 ## Getting Started
 
@@ -37,4 +37,4 @@ The `setup-test` command initiates the process of registering 16 users from the 
 
 ### Canvas
 
-The `canvas` command sends a message featuring nft
+The `canvas` command sends a message featuring mock data for two entered NFTs. This command is helpful for testing image manipulation via Discord interactions.

@@ -6,6 +6,7 @@ import { readFile } from 'fs/promises'
 import { NftData, ImageData } from './types'
 import { getPixelColor } from './canvasUtils'
 
+// SETTINGS
 const nftData: NftData = {
   num: 2,
   cw: 2000,
@@ -16,6 +17,8 @@ const nftData: NftData = {
       height: 1000,
       startX: 0,
       startY: 0,
+      // This is the current area of the cone I've selected for melting,
+      // Feel free to update and change any of these values
       meltData: {
         startX: 400,
         endX: 510,
@@ -81,6 +84,7 @@ const downloadAndDraw = async (
   }
 }
 
+// Add NFT images to canvas
 const drawNfts = async (assets: Asset[]) => {
   await asyncForEach(
     nftData.imageData,
@@ -93,19 +97,23 @@ const drawNfts = async (assets: Asset[]) => {
 const drawMelt = async (meltNum: number) => {
   // For each image on the canvas
   await asyncForEach(nftData.imageData, async ({ meltData }: ImageData) => {
-    // Implement melt effect meltNum times
+    /*
+              *****************************
+              ***** MELTING TIME BABY *****
+              *****************************
+
+      Currently I'm just drawing a bunch of circles here
+      that offset on the y axis by the index every time 
+      the loop is run.
+
+      You can use some of the utils I've created for finding the most relevent 
+      colors if you want
+
+      Implement melting logic here
+
+    */
+
     for (let i = 0; i < meltNum; i++) {
-      /*
-        Currently I'm just drawing a bunch of circles here
-        that offset on the y axis by the index every time 
-        the loop is run.
-
-        You can use some of the utils I've created for finding the most relevent 
-        colors if you want
-
-        This is likely where you'll want to implement the "melting" logic
-
-      */
       const { startX, startY } = meltData
       ctx.fillStyle = getPixelColor(startX, startY, ctx).cssValue
       ctx.beginPath()
@@ -117,9 +125,9 @@ const drawMelt = async (meltNum: number) => {
 }
 
 const main = async (interaction: any, damage: number, assets: Asset[]) => {
-  // implement melt logic here and send canvas back OR pass the interaction in and manage from hrere
+  // Call this function from inside the game after every turn happens, use player damage inflicted to inform melting
   if (interaction) {
-    // replyWtihMelt(interaction, )
+    // replyWithMelt()
   } else {
     await drawNfts(assets)
     await drawMelt(100)
