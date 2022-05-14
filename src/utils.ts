@@ -6,7 +6,7 @@ export const wait = async (duration: number) => {
   })
 }
 
-export const asyncForEach = async (array: Array<any>, callback: Function) => {
+export const asyncForEach = async (array: Array<any>, callback: any) => {
   for (let index = 0; index < array.length; index++) {
     try {
       await callback(array[index], index, array)
@@ -19,8 +19,8 @@ export const asyncForEach = async (array: Array<any>, callback: Function) => {
 export const getNextRoundData = (length: number) => {
   if (length === 16) return { nextRoundType: 'roundOne', observeTime: 0 }
   if (length === 8) return { nextRoundType: 'roundTwo', observeTime: 0 }
-  if (length === 4) return { nextRoundType: 'semiFinals', observeTime: 2000 }
-  if (length === 2) return { nextRoundType: 'finals', observeTime: 2000 }
+  if (length === 4) return { nextRoundType: 'semiFinals', observeTime: 1000 }
+  if (length === 2) return { nextRoundType: 'finals', observeTime: 1000 }
   else return { nextRoundType: 'gameover', observeTime: 0 }
 }
 

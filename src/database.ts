@@ -20,13 +20,9 @@ const resetPlayers = async () => {
 }
 
 const findGame = async () => {
-  try {
-    const database: Db = client.db('facemelter')
-    const collection: Collection = database.collection('game')
-    return await collection.findOne()
-  } catch (error) {
-    console.log('error finding game')
-  }
+  const database: Db = client.db('facemelter')
+  const collection: Collection = database.collection('game')
+  return await collection.findOne()
 }
 
 const getPlayers = async () => {
@@ -38,6 +34,7 @@ const getPlayers = async () => {
 const addGame = async () => {
   try {
     const players = await getPlayers()
+    console.log('players', players)
     const randomizedPlayers = choosePlayers(players, 15)
     const game: Game = {
       round: 'roundOne',

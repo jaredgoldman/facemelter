@@ -28,6 +28,8 @@ const commands = [
   new SlashCommandBuilder()
     .setName('setup-test')
     .setDescription('set up test users'),
+
+  new SlashCommandBuilder().setName('canvas').setDescription('test'),
 ].map((command) => command.toJSON())
 
 const rest = new REST({ version: '9' }).setToken(token)

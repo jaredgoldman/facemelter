@@ -29,14 +29,9 @@ const resetPlayers = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.resetPlayers = resetPlayers;
 const findGame = () => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const database = client.db('facemelter');
-        const collection = database.collection('game');
-        return yield collection.findOne();
-    }
-    catch (error) {
-        console.log('error finding game');
-    }
+    const database = client.db('facemelter');
+    const collection = database.collection('game');
+    return yield collection.findOne();
 });
 exports.findGame = findGame;
 const getPlayers = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -47,6 +42,7 @@ const getPlayers = () => __awaiter(void 0, void 0, void 0, function* () {
 const addGame = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const players = yield getPlayers();
+        console.log('players', players);
         const randomizedPlayers = (0, utils_1.choosePlayers)(players, 15);
         const game = {
             round: 'roundOne',

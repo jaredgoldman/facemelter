@@ -1,5 +1,13 @@
-import { MessageEmbed } from 'discord.js'
-import { GameState, PlayerArray, RoundTypes, Player } from '../types'
+import { MessageEmbed, MessageAttachment } from 'discord.js'
+import {
+  GameState,
+  PlayerArray,
+  RoundTypes,
+  Player,
+  Asset,
+  User,
+} from '../types'
+import { doMelt } from '../canvas'
 
 const roundNames: RoundTypes = {
   roundOne: 'Round One',
@@ -30,11 +38,14 @@ const createTurnEmbed = (state: GameState) => {
       value: `HP: ${player.hp.toString()}`,
     }
   })
+
   const embed = new MessageEmbed()
     .setColor('#0099ff')
     .setTitle(`${roundNames[round]}`)
     .setDescription(`Who will survive the meltening?`)
     .addFields(hpFields)
+    .setImage(players[0].asset.assetUrl)
+
   return {
     embeds: [embed],
     fetchReply: true,
@@ -95,6 +106,20 @@ const createWinningEmbed = (winningPlayer: Player) => {
   }
 }
 
+const createRegisterEmbed = (asset: Asset, user: User) => {
+  const { username } = user
+  const { unitName, assetUrl } = asset
+  const embed = new MessageEmbed()
+    .setColor('#0099ff')
+    .setTitle(`REGISTER SUCCESS`)
+    .setDescription(`${username} has entered ${unitName} for melting!`)
+    .setThumbnail(assetUrl)
+  return {
+    embeds: [embed],
+    fetchReply: true,
+  }
+}
+
 export {
   createRoundEmbed,
   createInitialEmbed,
@@ -102,4 +127,6 @@ export {
   createMatchEmbed,
   createNextMatchEmbed,
   createWinningEmbed,
+  createRegisterEmbed,
+  // createCanvasEmbed,
 }

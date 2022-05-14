@@ -27,6 +27,7 @@ const commands = [
     new builders_1.SlashCommandBuilder()
         .setName('setup-test')
         .setDescription('set up test users'),
+    new builders_1.SlashCommandBuilder().setName('canvas').setDescription('test'),
 ].map((command) => command.toJSON());
 const rest = new rest_1.REST({ version: '9' }).setToken(token);
 rest

@@ -33,9 +33,9 @@ const getNextRoundData = (length) => {
     if (length === 8)
         return { nextRoundType: 'roundTwo', observeTime: 0 };
     if (length === 4)
-        return { nextRoundType: 'semiFinals', observeTime: 2000 };
+        return { nextRoundType: 'semiFinals', observeTime: 1000 };
     if (length === 2)
-        return { nextRoundType: 'finals', observeTime: 2000 };
+        return { nextRoundType: 'finals', observeTime: 1000 };
     else
         return { nextRoundType: 'gameover', observeTime: 0 };
 };

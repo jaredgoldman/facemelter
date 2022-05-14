@@ -22,7 +22,7 @@ let state = {
 exports.state = state;
 let winningPlayer;
 let observe;
-const playGame = (match, observeTime, round) => __awaiter(void 0, void 0, void 0, function* () {
+const playGame = (match, observeTime, round, interaction) => __awaiter(void 0, void 0, void 0, function* () {
     observe = observeTime;
     winningPlayer = undefined;
     const { player1, player2, hp } = match;
@@ -31,7 +31,7 @@ const playGame = (match, observeTime, round) => __awaiter(void 0, void 0, void 0
         if (observeTime) {
             yield (0, utils_1.wait)(observeTime);
         }
-        playRound();
+        playRound(interaction);
     }
     if (observeTime) {
         const matchEmbed = (0, embeds_1.createMatchEmbed)(winningPlayer, round);
@@ -48,7 +48,7 @@ const createGameState = (player1, player2, hp, round, observeTime) => {
         round,
         observeTime });
 };
-const playRound = () => __awaiter(void 0, void 0, void 0, function* () {
+const playRound = (interaction) => __awaiter(void 0, void 0, void 0, function* () {
     const { players, hp } = state;
     if (Array.isArray(players)) {
         players.forEach((player, i) => {
