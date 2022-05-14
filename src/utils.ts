@@ -51,7 +51,7 @@ export const choosePlayers = (
   const splitPlayerArray: PlayerArray = splitPlayers(players)
   const playerArray = []
   const randomIndexes: Array<number> = []
-  while (playerArray.length <= length) {
+  while (playerArray.length < length) {
     const randomIndex: number = Math.floor(
       Math.random() * splitPlayerArray.length
     )

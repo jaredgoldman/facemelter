@@ -62,7 +62,7 @@ client.on('interactionCreate', (interaction) => __awaiter(void 0, void 0, void 0
     }
     if (commandName === 'canvas') {
         try {
-            const canvas = yield (0, canvas_1.main)(null, 10, mocks_1.mockAsset);
+            const canvas = yield (0, canvas_1.main)(null, 10, mocks_1.mockAssets);
             const attachment = new discord_js_1.MessageAttachment(canvas.toBuffer('image/png'), 'test-melt.png');
             yield interaction.reply({ files: [attachment] });
         }

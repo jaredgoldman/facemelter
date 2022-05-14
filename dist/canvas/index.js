@@ -77,9 +77,9 @@ const downloadAndDraw = ({ assetUrl }, startX, startY, width, height) => __await
         console.log(error);
     }
 });
-const drawNfts = (asset) => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, utils_1.asyncForEach)(nftData.imageData, ({ startX, startY, width, height }) => __awaiter(void 0, void 0, void 0, function* () {
-        yield downloadAndDraw(asset, startX, startY, width, height);
+const drawNfts = (assets) => __awaiter(void 0, void 0, void 0, function* () {
+    yield (0, utils_1.asyncForEach)(nftData.imageData, ({ startX, startY, width, height }, i) => __awaiter(void 0, void 0, void 0, function* () {
+        yield downloadAndDraw(assets[i], startX, startY, width, height);
     }));
 });
 const drawMelt = (meltNum) => __awaiter(void 0, void 0, void 0, function* () {
@@ -94,11 +94,11 @@ const drawMelt = (meltNum) => __awaiter(void 0, void 0, void 0, function* () {
         }
     }));
 });
-const main = (interaction, damage, asset) => __awaiter(void 0, void 0, void 0, function* () {
+const main = (interaction, damage, assets) => __awaiter(void 0, void 0, void 0, function* () {
     if (interaction) {
     }
     else {
-        yield drawNfts(asset);
+        yield drawNfts(assets);
         yield drawMelt(100);
     }
     return canvas;

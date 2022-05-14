@@ -1,6 +1,6 @@
 import { Client, Intents, MessageAttachment } from 'discord.js'
 import { playRound } from '../game/controller'
-import { mockPlayers, mockAsset } from '../mocks'
+import { mockPlayers, mockAssets } from '../mocks'
 import { processRegistration } from '../register'
 import { asyncForEach, wait } from '../utils'
 import { resetPlayers } from '../database'
@@ -69,7 +69,7 @@ client.on('interactionCreate', async (interaction: any) => {
   // for testing purposes
   if (commandName === 'canvas') {
     try {
-      const canvas = await main(null, 10, mockAsset)
+      const canvas = await main(null, 10, mockAssets)
       const attachment = new MessageAttachment(
         canvas.toBuffer('image/png'),
         'test-melt.png'

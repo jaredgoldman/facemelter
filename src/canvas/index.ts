@@ -81,11 +81,11 @@ const downloadAndDraw = async (
   }
 }
 
-const drawNfts = async (asset: Asset) => {
+const drawNfts = async (assets: Asset[]) => {
   await asyncForEach(
     nftData.imageData,
-    async ({ startX, startY, width, height }: ImageData) => {
-      await downloadAndDraw(asset, startX, startY, width, height)
+    async ({ startX, startY, width, height }: ImageData, i: number) => {
+      await downloadAndDraw(assets[i], startX, startY, width, height)
     }
   )
 }
@@ -116,12 +116,12 @@ const drawMelt = async (meltNum: number) => {
   })
 }
 
-const main = async (interaction: any, damage: number, asset: Asset) => {
+const main = async (interaction: any, damage: number, assets: Asset[]) => {
   // implement melt logic here and send canvas back OR pass the interaction in and manage from hrere
   if (interaction) {
     // replyWtihMelt(interaction, )
   } else {
-    await drawNfts(asset)
+    await drawNfts(assets)
     await drawMelt(100)
   }
   return canvas

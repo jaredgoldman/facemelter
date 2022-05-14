@@ -64,7 +64,7 @@ const choosePlayers = (players, length) => {
     const splitPlayerArray = splitPlayers(players);
     const playerArray = [];
     const randomIndexes = [];
-    while (playerArray.length <= length) {
+    while (playerArray.length < length) {
         const randomIndex = Math.floor(Math.random() * splitPlayerArray.length);
         if (!randomIndexes.includes(randomIndex)) {
             playerArray.push(splitPlayerArray[randomIndex]);

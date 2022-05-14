@@ -34,8 +34,7 @@ const getPlayers = async () => {
 const addGame = async () => {
   try {
     const players = await getPlayers()
-    console.log('players', players)
-    const randomizedPlayers = choosePlayers(players, 15)
+    const randomizedPlayers = choosePlayers(players, 16)
     const game: Game = {
       round: 'roundOne',
       players: randomizedPlayers,

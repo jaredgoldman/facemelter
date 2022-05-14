@@ -42,8 +42,7 @@ const getPlayers = () => __awaiter(void 0, void 0, void 0, function* () {
 const addGame = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const players = yield getPlayers();
-        console.log('players', players);
-        const randomizedPlayers = (0, utils_1.choosePlayers)(players, 15);
+        const randomizedPlayers = (0, utils_1.choosePlayers)(players, 16);
         const game = {
             round: 'roundOne',
             players: randomizedPlayers,

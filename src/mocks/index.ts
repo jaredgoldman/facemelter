@@ -1,4 +1,4 @@
-import mockAsset from './mockAsset'
+import mockAssets from './mockAsset'
 import mockPlayers from './mockPlayers'
 
-export { mockAsset, mockPlayers }
+export { mockAssets, mockPlayers }
