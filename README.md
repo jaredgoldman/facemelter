@@ -1,13 +1,14 @@
 # FACEMELTER
 
-Facemelter is a discord bot that exposes a game which allows players to enter RandyCone NFTS and witness them compete against each other for survival under the hot sun. The game comprises of 4 rounds (round one, round two, semi-finals and finals) in which winning players advance through. The final two rounds feature visualizatons of each players NFTs getting melted via the canvas API.
+Facemelter is a Discord bot that exposes a game which allows players to enter RandyCone NFTS and witness them compete against each other for survival under the hot sun. The game comprises of 4 rounds (round one, round two, semi-finals and finals) in which winning players advance through. The final two rounds feature visualizatons of each players NFTs getting melted via the canvas API.
 
 ## Getting Started
 
-Before starting make sure to add and update a env file with the values specified below. This will require you to create a bot and assign your bot and Discord servers various tokens. Also make sure your local environment is running Node 16+. You will also have to create a new MongoDb database instance, name it facemelter and add two empty collections titled 'users' and 'game'. After creating your database instance, register the Discord slash commands by running `node dist/discord/deployCommands.js` from the root of the project. Finally, run`npm i` and then `npm start` or `npm run dev` to get the server running and interact via via slash commands in your Discord server.
+Before starting make sure to add and update env file with the values specified below. This will require you to create a bot and/or server and add your their respective tokens. Also make sure your local environment is running Node v16+. You will also have to create a new MongoDb database instance, name it facemelter and add two empty collections titled 'users' and 'game'. After creating your database instance, register the Discord slash commands by running `node dist/discord/deployCommands.js` from the root of the project. Finally, run`npm i` and then `npm start` or `npm run dev` to get the server running and interact via via slash commands in your Discord server.
 
 ### Environment Values
 
+```
 - MONGO_URL: string (mongodb+srv://...)
 - DISCORD_TOKEN: string
 - DISCORD_CLIENT_ID: string
@@ -16,6 +17,7 @@ Before starting make sure to add and update a env file with the values specified
 - ALGO_INDEXER_NODE: string (https://mainnet-algorand.api.purestake.io/idx2)
 - PURESTAKE_API: string
 - OPT_IN_ASSET_ID: number
+```
 
 ### Slash Commands
 
