@@ -7,7 +7,7 @@ import {
   Asset,
   User,
 } from '../types'
-import { doMelt } from '../canvas'
+import { main } from '../canvas'
 
 const roundNames: RoundTypes = {
   roundOne: 'Round One',

@@ -15,7 +15,6 @@ const database_1 = require("../database");
 const utils_1 = require("../utils");
 const embeds_1 = require("../discord/embeds");
 const playRound = (interaction) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('playing round');
     const game = yield determineGame();
     const { players, _id: gameId, round } = game;
     const initialEmbed = (0, embeds_1.createInitialEmbed)(round);

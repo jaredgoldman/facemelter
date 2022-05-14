@@ -1,5 +1,5 @@
 import { Asset, Game, PlayerEntryArray, PlayerEntry } from './types'
-import { players } from './mocks/mockdata'
+import { mockPlayers } from './mocks/'
 import { MongoClient, Db, Collection, ObjectId } from 'mongodb'
 import { choosePlayers } from './utils'
 const uri: string = process.env.MONGO_URI
@@ -10,7 +10,7 @@ client.connect()
 const addPlayers = async () => {
   const database: Db = client.db('facemelter')
   const collection: Collection = database.collection('users')
-  await collection.insertMany(players)
+  await collection.insertMany(mockPlayers)
 }
 
 const resetPlayers = async () => {

@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addPlayerAsset = exports.findPlayer = exports.addPlayer = exports.clearGame = exports.updateGame = exports.addGame = exports.findGame = exports.resetPlayers = exports.addPlayers = void 0;
-const mockdata_1 = require("./mocks/mockdata");
+const mocks_1 = require("./mocks/");
 const mongodb_1 = require("mongodb");
 const utils_1 = require("./utils");
 const uri = process.env.MONGO_URI;
@@ -19,7 +19,7 @@ client.connect();
 const addPlayers = () => __awaiter(void 0, void 0, void 0, function* () {
     const database = client.db('facemelter');
     const collection = database.collection('users');
-    yield collection.insertMany(mockdata_1.players);
+    yield collection.insertMany(mocks_1.mockPlayers);
 });
 exports.addPlayers = addPlayers;
 const resetPlayers = () => __awaiter(void 0, void 0, void 0, function* () {

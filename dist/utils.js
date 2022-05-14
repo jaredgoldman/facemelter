@@ -8,8 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.choosePlayers = exports.getNextRoundData = exports.asyncForEach = exports.wait = void 0;
+exports.downloadFile = exports.choosePlayers = exports.getNextRoundData = exports.asyncForEach = exports.wait = void 0;
+const axios_1 = __importDefault(require("axios"));
+const fs_1 = __importDefault(require("fs"));
 const wait = (duration) => __awaiter(void 0, void 0, void 0, function* () {
     yield new Promise((res) => {
         setTimeout(res, duration);
@@ -69,3 +74,18 @@ const choosePlayers = (players, length) => {
     return playerArray;
 };
 exports.choosePlayers = choosePlayers;
+const downloadFile = (imageUrl, directory) => __awaiter(void 0, void 0, void 0, function* () {
+    const path = `${directory}/image.jpg`;
+    const writer = fs_1.default.createWriteStream(path);
+    const res = yield axios_1.default.get(imageUrl, {
+        responseType: 'stream',
+    });
+    res.data.pipe(writer);
+    return new Promise((resolve, reject) => {
+        writer.on('finish', () => {
+            return resolve(path);
+        });
+        writer.on('error', reject);
+    });
+});
+exports.downloadFile = downloadFile;

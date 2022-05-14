@@ -1,5 +1,4 @@
 import { ObjectId } from 'mongodb'
-import { Interaction, MessageManager } from 'discord.js'
 
 export interface GameState {
   players: PlayerArray

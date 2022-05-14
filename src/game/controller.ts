@@ -11,9 +11,11 @@ import {
 } from '../discord/embeds'
 import { InteractionReplyOptions } from 'discord.js'
 
+/*
+  Players series of matches for each round
+*/
 const playRound = async (interaction: any) => {
   // attempt to retreive game
-  console.log('playing round')
   const game = await determineGame()
   const { players, _id: gameId, round } = game
   // create initial embed

@@ -1,4 +1,4 @@
-const players = [
+export default [
   {
     user: {
       id: '1',
@@ -648,5 +648,3 @@ const players = [
     assetId: 357410382,
   },
 ]
-
-export { players }

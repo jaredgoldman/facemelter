@@ -1,12 +1,12 @@
-import { Client, Intents, Interaction, MessageAttachment } from 'discord.js'
+import { Client, Intents, MessageAttachment } from 'discord.js'
 import { playRound } from '../game/controller'
-import { players } from '../mocks/mockdata'
+import { mockPlayers, mockAsset } from '../mocks'
 import { processRegistration } from '../register'
 import { asyncForEach, wait } from '../utils'
 import { resetPlayers } from '../database'
 import { RegistrationResult } from '../types'
 import { createRegisterEmbed } from './embeds'
-import { doMelt } from '../canvas'
+import { main } from '../canvas'
 const token: string = process.env.DISCORD_TOKEN
 
 const client: Client = new Client({
@@ -22,7 +22,6 @@ client.on('interactionCreate', async (interaction: any) => {
 
   const { commandName, options, user } = interaction
   if (commandName === 'start') {
-    // interaction.deferReply()
     await playRound(interaction)
   }
 
@@ -50,7 +49,7 @@ client.on('interactionCreate', async (interaction: any) => {
   if (commandName === 'setup-test') {
     interaction.deferReply()
     await resetPlayers()
-    await asyncForEach(players, async (player: any) => {
+    await asyncForEach(mockPlayers, async (player: any) => {
       const { user, address, assetId } = player
       await processRegistration(user, address, assetId)
       await wait(1)
@@ -61,19 +60,18 @@ client.on('interactionCreate', async (interaction: any) => {
     })
   }
 
+  // for testing purposes
   if (commandName === 'canvas') {
-    // interaction.deferReply()
-    // const array = [...Array(10).keys()]
-    // await asyncForEach(array, async (num: number) => {
-    const canvas = await doMelt(10)
-    const attachment = new MessageAttachment(canvas.toBuffer(), 'test-melt.png')
-    // if (num === 0) {
-    await interaction.reply({ files: [attachment] })
-    // } else {
-    //   await interaction.editReply({ files: [attachment] })
-    // }
-    // await wait(1000)
-    // })
+    try {
+      const canvas = await main(null, 10, mockAsset)
+      const attachment = new MessageAttachment(
+        canvas.toBuffer('image/png'),
+        'test-melt.png'
+      )
+      await interaction.reply({ files: [attachment] })
+    } catch (error) {
+      console.log(error)
+    }
   }
 })
 
