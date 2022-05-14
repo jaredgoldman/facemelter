@@ -8,7 +8,7 @@ Before starting make sure to add and update env file with the values specified b
 
 ### Environment Values
 
-```
+```ts
 - MONGO_URL: string (mongodb+srv://...)
 - DISCORD_TOKEN: string
 - DISCORD_CLIENT_ID: string
