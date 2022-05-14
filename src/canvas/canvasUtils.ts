@@ -42,7 +42,7 @@ export const readColors = (
   return colors
 }
 
-const getPixelColor = (
+export const getPixelColor = (
   x: number,
   y: number,
   ctx: CanvasRenderingContext2D

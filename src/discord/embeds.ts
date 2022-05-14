@@ -1,4 +1,4 @@
-import { MessageEmbed, MessageAttachment } from 'discord.js'
+import { MessageEmbed } from 'discord.js'
 import {
   GameState,
   PlayerArray,
@@ -128,5 +128,4 @@ export {
   createNextMatchEmbed,
   createWinningEmbed,
   createRegisterEmbed,
-  // createCanvasEmbed,
 }
