@@ -40,6 +40,6 @@ The `register` command takes a wallet address and asset id as subcommands. If th
 
 The `setup-test` command initiates the process of registering 16 users from the `mockPlayers.ts` file. Helpful for debugging registration issues.
 
-### Canvas
+#### Canvas
 
 The `canvas` command sends a message featuring mock data for two entered NFTs. This command is helpful for testing image manipulation via Discord interactions.
