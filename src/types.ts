@@ -63,6 +63,7 @@ export interface Asset {
   assetName: string
   assetId: number
   unitName: string
+  localPath?: string
 }
 
 export interface RegistrationResult {

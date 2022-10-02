@@ -1,6 +1,4 @@
 import { PlayerEntryArray, PlayerEntry, PlayerArray, Asset } from '../types'
-import axios from 'axios'
-import fs from 'fs'
 
 export const wait = async (duration: number) => {
   await new Promise((res) => {
@@ -60,27 +58,28 @@ export const choosePlayers = (
       randomIndexes.push(randomIndex)
     }
   }
+  // for each asset, download image locally and and save localpath to object
   return playerArray
 }
 
-export const downloadFile = async (
-  imageUrl: string,
-  directory: string
-): Promise<string> => {
-  const path = `${directory}/image.jpg`
-  const writer = fs.createWriteStream(path)
-  const res = await axios.get(imageUrl, {
-    responseType: 'stream',
-  })
-  res.data.pipe(writer)
+// export const downloadFile = async (
+//   imageUrl: string,
+//   directory: string
+// ): Promise<string> => {
+//   const path = `${directory}/image.jpg`
+//   const writer = fs.createWriteStream(path)
+//   const res = await axios.get(imageUrl, {
+//     responseType: 'stream',
+//   })
+//   res.data.pipe(writer)
 
-  return new Promise((resolve, reject) => {
-    writer.on('finish', () => {
-      return resolve(path)
-    })
-    writer.on('error', reject)
-  })
-}
+//   return new Promise((resolve, reject) => {
+//     writer.on('finish', () => {
+//       return resolve(path)
+//     })
+//     writer.on('error', reject)
+//   })
+// }
 
 /**
  * Determines if url is an IPFS locater
