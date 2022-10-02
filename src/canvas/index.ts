@@ -1,6 +1,6 @@
 import Canvas, { CanvasRenderingContext2D } from 'canvas'
 import { MessageAttachment } from 'discord.js'
-import { wait, downloadFile, asyncForEach } from '../utils'
+import { wait, downloadFile, asyncForEach } from '../utils/sharedUtils'
 import { Asset } from '../types'
 import { readFile } from 'fs/promises'
 import { NftData, ImageData } from './types'

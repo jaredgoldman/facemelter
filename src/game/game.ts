@@ -1,6 +1,6 @@
 import { createMatchEmbed, createTurnEmbed } from '../discord/embeds'
 import { GameState, Player, Match, PlayerArray } from '../types'
-import { wait } from '../utils'
+import { wait } from '../utils/sharedUtils'
 
 let state: GameState = {
   players: [],
@@ -72,14 +72,15 @@ const playRound = async (interaction: any) => {
     })
     determineWinner()
     if (observe) {
-      const turnEmbed = createTurnEmbed(state)
+      const turnEmbed = await createTurnEmbed(state)
       await state.embed.edit(turnEmbed)
+      await wait(1000)
     }
   }
 }
 
-const playerTurn = (i: number, hp: number): void => {
-  const player: Player = state.players[i]
+const playerTurn = (playerIndex: number, hp: number): void => {
+  const player: Player = state.players[playerIndex]
   const roll: number = Math.floor((Math.random() * hp) / 10)
   if (player.hp && player.hp > 0) {
     player.hp -= roll

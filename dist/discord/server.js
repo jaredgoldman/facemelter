@@ -13,7 +13,7 @@ const discord_js_1 = require("discord.js");
 const controller_1 = require("../game/controller");
 const mocks_1 = require("../mocks");
 const register_1 = require("../register");
-const utils_1 = require("../utils");
+const sharedUtils_1 = require("../utils/sharedUtils");
 const database_1 = require("../database");
 const embeds_1 = require("./embeds");
 const canvas_1 = require("../canvas");
@@ -25,50 +25,59 @@ client.once('ready', () => {
     console.log('Melter ready!');
 });
 client.on('interactionCreate', (interaction) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!interaction.isCommand())
-        return;
-    const { commandName, options, user } = interaction;
-    if (commandName === 'start') {
-        yield (0, controller_1.playRound)(interaction);
+    try {
+        if (!interaction.isCommand())
+            return;
+        const { commandName, options, user } = interaction;
+        if (commandName === 'start') {
+            yield (0, controller_1.playRound)(interaction);
+        }
+        if (commandName === 'register') {
+            interaction.deferReply();
+            const address = options.getString('address');
+            const assetId = options.getNumber('assetid');
+            const { status, asset, registeredUser } = yield (0, register_1.processRegistration)(user, address, assetId);
+            if (asset) {
+                const registerEmbed = (0, embeds_1.createRegisterEmbed)(asset, registeredUser);
+                interaction.reply(registerEmbed);
+            }
+            else {
+                interaction.reply({
+                    content: status,
+                    ephemeral: true,
+                });
+            }
+        }
+        if (commandName === 'setup-test') {
+            try {
+                interaction.deferReply({ ephemeral: true });
+                yield (0, database_1.resetPlayers)();
+                yield (0, sharedUtils_1.asyncForEach)(mocks_1.mockPlayers, (player) => __awaiter(void 0, void 0, void 0, function* () {
+                    const { user, address, assetId } = player;
+                    yield (0, register_1.processRegistration)(user, address, assetId);
+                    yield (0, sharedUtils_1.wait)(1);
+                }));
+                interaction.editReply({
+                    content: 'test players added!',
+                });
+            }
+            catch (error) {
+                console.log(error);
+            }
+        }
+        if (commandName === 'canvas') {
+            try {
+                const canvas = yield (0, canvas_1.main)(null, 10, mocks_1.mockAssets);
+                const attachment = new discord_js_1.MessageAttachment(canvas.toBuffer('image/png'), 'test-melt.png');
+                yield interaction.reply({ files: [attachment] });
+            }
+            catch (error) {
+                console.log(error);
+            }
+        }
     }
-    if (commandName === 'register') {
-        interaction.deferReply();
-        const address = options.getString('address');
-        const assetId = options.getNumber('assetid');
-        const { status, asset, registeredUser } = yield (0, register_1.processRegistration)(user, address, assetId);
-        if (asset) {
-            const registerEmbed = (0, embeds_1.createRegisterEmbed)(asset, registeredUser);
-            interaction.reply(registerEmbed);
-        }
-        else {
-            interaction.reply({
-                content: status,
-                ephemeral: true,
-            });
-        }
-    }
-    if (commandName === 'setup-test') {
-        interaction.deferReply();
-        yield (0, database_1.resetPlayers)();
-        yield (0, utils_1.asyncForEach)(mocks_1.mockPlayers, (player) => __awaiter(void 0, void 0, void 0, function* () {
-            const { user, address, assetId } = player;
-            yield (0, register_1.processRegistration)(user, address, assetId);
-            yield (0, utils_1.wait)(1);
-        }));
-        interaction.editReply({
-            content: 'test players added!',
-            ephemeral: true,
-        });
-    }
-    if (commandName === 'canvas') {
-        try {
-            const canvas = yield (0, canvas_1.main)(null, 10, mocks_1.mockAssets);
-            const attachment = new discord_js_1.MessageAttachment(canvas.toBuffer('image/png'), 'test-melt.png');
-            yield interaction.reply({ files: [attachment] });
-        }
-        catch (error) {
-            console.log(error);
-        }
+    catch (error) {
+        console.log(error);
     }
 }));
 client.login(token);

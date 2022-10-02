@@ -1,4 +1,4 @@
-import { PlayerEntryArray, PlayerEntry, PlayerArray, Asset } from './types'
+import { PlayerEntryArray, PlayerEntry, PlayerArray, Asset } from '../types'
 import axios from 'axios'
 import fs from 'fs'
 
@@ -80,4 +80,27 @@ export const downloadFile = async (
     })
     writer.on('error', reject)
   })
+}
+
+/**
+ * Determines if url is an IPFS locater
+ * @param url
+ * @returns
+ */
+export const isIpfs = (url: string): boolean => url?.slice(0, 4) === 'ipfs'
+
+const ipfsGateway = 'https://ipfs.io/ipfs/'
+
+/**
+ * Converst IPFS url to http url for consumption in game
+ * @param url
+ * @returns
+ */
+export const normalizeIpfsUrl = (url: string): string => {
+  if (isIpfs(url)) {
+    const ifpsHash = url.slice(7)
+    return `${ipfsGateway}${ifpsHash}`
+  } else {
+    return url
+  }
 }

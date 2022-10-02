@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.state = exports.playGame = void 0;
 const embeds_1 = require("../discord/embeds");
-const utils_1 = require("../utils");
+const sharedUtils_1 = require("../utils/sharedUtils");
 let state = {
     players: [],
     hp: 0,
@@ -29,14 +29,14 @@ const playGame = (match, observeTime, round, interaction) => __awaiter(void 0, v
     createGameState(player1, player2, hp, round, observeTime);
     while (!winningPlayer) {
         if (observeTime) {
-            yield (0, utils_1.wait)(observeTime);
+            yield (0, sharedUtils_1.wait)(observeTime);
         }
         playRound(interaction);
     }
     if (observeTime) {
         const matchEmbed = (0, embeds_1.createMatchEmbed)(winningPlayer, round);
         yield state.embed.edit(matchEmbed);
-        yield (0, utils_1.wait)(3000);
+        yield (0, sharedUtils_1.wait)(3000);
     }
     return winningPlayer;
 });
@@ -56,13 +56,14 @@ const playRound = (interaction) => __awaiter(void 0, void 0, void 0, function* (
         });
         determineWinner();
         if (observe) {
-            const turnEmbed = (0, embeds_1.createTurnEmbed)(state);
+            const turnEmbed = yield (0, embeds_1.createTurnEmbed)(state);
             yield state.embed.edit(turnEmbed);
+            yield (0, sharedUtils_1.wait)(1000);
         }
     }
 });
-const playerTurn = (i, hp) => {
-    const player = state.players[i];
+const playerTurn = (playerIndex, hp) => {
+    const player = state.players[playerIndex];
     const roll = Math.floor((Math.random() * hp) / 10);
     if (player.hp && player.hp > 0) {
         player.hp -= roll;

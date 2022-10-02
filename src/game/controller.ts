@@ -2,7 +2,7 @@ import { Player, Game, Match, PlayerArray } from '../types'
 import { playGame, state } from './game'
 import { findGame, addGame, updateGame, clearGame } from '../database'
 import { WithId } from 'mongodb'
-import { asyncForEach, getNextRoundData, wait } from '../utils'
+import { asyncForEach, getNextRoundData, wait } from '../utils/sharedUtils'
 import {
   createRoundEmbed,
   createWinningEmbed,
@@ -10,11 +10,13 @@ import {
   createNextMatchEmbed,
 } from '../discord/embeds'
 import { InteractionReplyOptions } from 'discord.js'
+import settings from '../settings'
 
 /*
   Players series of matches for each round
 */
 const playRound = async (interaction: any) => {
+  console.log('playing round')
   // attempt to retreive game
   const game = await determineGame()
   const { players, _id: gameId, round } = game
@@ -63,7 +65,7 @@ const groupMatches = (players: PlayerArray) => {
   for (let i = 0; i <= players.length - 1; i += 2) {
     const player1: Player = players[i]
     const player2: Player = players[i + 1]
-    const hp = 100
+    const hp = settings.hp
 
     matches.push({ player1, player2, hp })
   }
@@ -101,16 +103,20 @@ const playMatches = async (
 }
 
 const determineGame = async () => {
-  let game: WithId<Game | any> = await findGame()
-  // if there is not already a game object, create one and add players
-  if (!game) {
-    console.log('game does not exist')
-    await addGame()
-    game = await findGame()
-  } else {
-    console.log('game exists')
+  try {
+    let game: WithId<Game | any> = await findGame()
+    // if there is not already a game object, create one and add players
+    if (!game) {
+      console.log('game does not exist')
+      await addGame()
+      game = await findGame()
+    } else {
+      console.log('game exists')
+    }
+    return game
+  } catch (error) {
+    console.log(error)
   }
-  return game
 }
 
 export { playRound }

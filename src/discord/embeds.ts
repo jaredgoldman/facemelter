@@ -1,4 +1,5 @@
 import { MessageEmbed } from 'discord.js'
+
 import {
   GameState,
   PlayerArray,
@@ -7,7 +8,7 @@ import {
   Asset,
   User,
 } from '../types'
-import { main } from '../canvas'
+import { renderMelts } from '../canvas/julianCanvas'
 
 const roundNames: RoundTypes = {
   roundOne: 'Round One',
@@ -28,7 +29,7 @@ const createInitialEmbed = (round: string) => {
   }
 }
 
-const createTurnEmbed = (state: GameState) => {
+const createTurnEmbed = async (state: GameState) => {
   const { players, round } = state
   const hpFields = players.map((player) => {
     const { discordId, asset } = player
@@ -39,16 +40,19 @@ const createTurnEmbed = (state: GameState) => {
     }
   })
 
+  const attachment = await renderMelts(players)
+
   const embed = new MessageEmbed()
     .setColor('#0099ff')
     .setTitle(`${roundNames[round]}`)
     .setDescription(`Who will survive the meltening?`)
     .addFields(hpFields)
-    .setImage(players[0].asset.assetUrl)
+    .setImage('attachment://test.jpg')
 
   return {
     embeds: [embed],
     fetchReply: true,
+    files: [attachment],
   }
 }
 

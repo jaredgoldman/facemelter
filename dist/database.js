@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.addPlayerAsset = exports.findPlayer = exports.addPlayer = exports.clearGame = exports.updateGame = exports.addGame = exports.findGame = exports.resetPlayers = exports.addPlayers = void 0;
 const mocks_1 = require("./mocks/");
 const mongodb_1 = require("mongodb");
-const utils_1 = require("./utils");
+const sharedUtils_1 = require("./utils/sharedUtils");
 const uri = process.env.MONGO_URI;
 const client = new mongodb_1.MongoClient(uri);
 client.connect();
@@ -42,7 +42,7 @@ const getPlayers = () => __awaiter(void 0, void 0, void 0, function* () {
 const addGame = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const players = yield getPlayers();
-        const randomizedPlayers = (0, utils_1.choosePlayers)(players, 16);
+        const randomizedPlayers = (0, sharedUtils_1.choosePlayers)(players, 16);
         const game = {
             round: 'roundOne',
             players: randomizedPlayers,

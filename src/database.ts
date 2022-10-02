@@ -1,7 +1,7 @@
 import { Asset, Game, PlayerEntryArray, PlayerEntry } from './types'
 import { mockPlayers } from './mocks/'
 import { MongoClient, Db, Collection, ObjectId } from 'mongodb'
-import { choosePlayers } from './utils'
+import { choosePlayers } from './utils/sharedUtils'
 const uri: string = process.env.MONGO_URI
 
 const client = new MongoClient(uri)

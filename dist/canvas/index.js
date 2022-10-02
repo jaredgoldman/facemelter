@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.main = void 0;
 const canvas_1 = __importDefault(require("canvas"));
 const discord_js_1 = require("discord.js");
-const utils_1 = require("../utils");
+const sharedUtils_1 = require("../utils/sharedUtils");
 const promises_1 = require("fs/promises");
 const canvasUtils_1 = require("./canvasUtils");
 const nftData = {
@@ -62,15 +62,15 @@ const replyWithMelt = (interaction, firstReply) => __awaiter(void 0, void 0, voi
     else {
         yield interaction.editReply({ files: [attachment] });
     }
-    yield (0, utils_1.wait)(1000);
+    yield (0, sharedUtils_1.wait)(1000);
 });
 const downloadAndDraw = ({ assetUrl }, startX, startY, width, height) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const imageLocation = yield (0, utils_1.downloadFile)(assetUrl, 'src/images');
+        const imageLocation = yield (0, sharedUtils_1.downloadFile)(assetUrl, 'src/images');
         const nft = yield (0, promises_1.readFile)(imageLocation);
         const nftImage = new canvas_1.default.Image();
         nftImage.src = nft;
-        yield (0, utils_1.wait)(1000);
+        yield (0, sharedUtils_1.wait)(1000);
         ctx.drawImage(nftImage, startX, startY, width, height);
     }
     catch (error) {
@@ -78,12 +78,12 @@ const downloadAndDraw = ({ assetUrl }, startX, startY, width, height) => __await
     }
 });
 const drawNfts = (assets) => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, utils_1.asyncForEach)(nftData.imageData, ({ startX, startY, width, height }, i) => __awaiter(void 0, void 0, void 0, function* () {
+    yield (0, sharedUtils_1.asyncForEach)(nftData.imageData, ({ startX, startY, width, height }, i) => __awaiter(void 0, void 0, void 0, function* () {
         yield downloadAndDraw(assets[i], startX, startY, width, height);
     }));
 });
 const drawMelt = (meltNum) => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, utils_1.asyncForEach)(nftData.imageData, ({ meltData }) => __awaiter(void 0, void 0, void 0, function* () {
+    yield (0, sharedUtils_1.asyncForEach)(nftData.imageData, ({ meltData }) => __awaiter(void 0, void 0, void 0, function* () {
         for (let i = 0; i < meltNum; i++) {
             const { startX, startY } = meltData;
             ctx.fillStyle = (0, canvasUtils_1.getPixelColor)(startX, startY, ctx).cssValue;
